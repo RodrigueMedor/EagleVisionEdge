@@ -1,0 +1,44 @@
+import { Rental } from '@/types/rental'
+
+export const mockRentals: Rental[] = [
+  {
+    id: 'rental_001',
+    vehicleId: '9',
+    customerId: 'cust_001',
+    startDate: new Date('2024-11-21'),
+    endDate: new Date('2024-11-28'),
+    dailyRate: 75,
+    totalCost: 525,
+    status: 'active',
+    notes: 'Business trip rental',
+    createdAt: new Date('2024-11-20'),
+    updatedAt: new Date('2024-11-20'),
+  },
+  {
+    id: 'rental_002',
+    vehicleId: '3',
+    customerId: 'cust_002',
+    startDate: new Date('2024-11-15'),
+    endDate: new Date('2024-11-20'),
+    dailyRate: 85,
+    totalCost: 425,
+    status: 'completed',
+    notes: 'Weekend rental',
+    createdAt: new Date('2024-11-15'),
+    updatedAt: new Date('2024-11-20'),
+  },
+  {
+    id: 'rental_003',
+    vehicleId: '4',
+    customerId: 'cust_003',
+    startDate: new Date('2024-11-25'),
+    endDate: new Date('2024-12-02'),
+    dailyRate: 65,
+    totalCost: 520,
+    status: 'pending',
+    notes: 'Family vacation',
+    createdAt: new Date('2024-11-20'),
+    updatedAt: new Date('2024-11-20'),
+  },
+]
+

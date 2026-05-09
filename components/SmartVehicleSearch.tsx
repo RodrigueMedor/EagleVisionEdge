@@ -25,7 +25,7 @@ export default function SmartVehicleSearch() {
   const [filteredVehicles, setFilteredVehicles] = useState(vehicles);
 
   const handleSearch = () => {
-    let results = vehicles.filter((vehicle) => {
+    const results = vehicles.filter((vehicle) => {
       // Price filter
       if (
         vehicle.price < filters.budgetMin ||
