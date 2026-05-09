@@ -17,7 +17,7 @@ export default function InventoryPage() {
   const years = useMemo(() => Array.from(new Set(allVehicles.map((v) => v.year))).sort((a, b) => b - a), []);
 
   const filtered = useMemo(() => {
-    let filtered = allVehicles.filter((v) => {
+    const filtered = allVehicles.filter((v) => {
       if (filters.make && v.make !== filters.make) return false;
       if (filters.bodyType && v.bodyType !== filters.bodyType) return false;
       if (filters.year && v.year !== filters.year) return false;
