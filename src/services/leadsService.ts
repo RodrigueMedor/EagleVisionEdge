@@ -2,7 +2,7 @@
 import { Lead, LeadStatus, CommunicationLog } from '@/types/lead'
 import { mockLeads } from '@/data/mockLeads'
 
-const leadsData = mockLeads.map(lead => ({
+const leadsData: Lead[] = mockLeads.map(lead => ({
   ...lead,
   createdAt: new Date(lead.createdAt),
   updatedAt: new Date(lead.updatedAt),
