@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react'
 import { clsx } from 'clsx'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'accent' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'accent' | 'ghost' | 'destructive'
   size?: 'sm' | 'md' | 'lg'
   children: ReactNode
   isLoading?: boolean
@@ -24,6 +24,7 @@ export default function Button({
     secondary: 'bg-gray-200 hover:bg-gray-300 text-primary focus-visible:outline-primary disabled:bg-gray-300',
     accent: 'bg-accent hover:bg-red-700 text-white focus-visible:outline-accent disabled:bg-red-900',
     ghost: 'bg-transparent hover:bg-gray-100 text-primary focus-visible:outline-primary disabled:text-gray-400',
+    destructive: 'bg-red-600 hover:bg-red-700 text-white focus-visible:outline-red-600 disabled:bg-red-400',
   }
 
   const sizes = {

@@ -1,46 +1,100 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, TrendingUp, Users, Package } from 'lucide-react'
-import Card, { StatusBadge } from '@/components/ui/Card'
+import { 
+  Car, 
+  TrendingUp, 
+  Users, 
+  DollarSign, 
+  Calendar, 
+  Target, 
+  BarChart3,
+  Activity,
+  Clock,
+  Plus,
+  Eye
+} from 'lucide-react'
+import { DashboardCard } from '@/components/ui/DashboardCard'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { CardSkeleton } from '@/components/ui/LoadingSkeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import Button from '@/components/ui/Button'
+import { dashboardService } from '@/services/dashboardService'
 import { inventoryService } from '@/services/inventoryService'
 import { leadsService } from '@/services/leadsService'
-import { analyticsService } from '@/services/analyticsService'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 
 export default function DashboardHome() {
-  const [stats, setStats] = useState<{
-    inventory: any
-    leads: any
-    analytics: any
-  } | null>(null)
+  const [metrics, setMetrics] = useState<any>(null)
+  const [kpiCards, setKpiCards] = useState<any[]>([])
+  const [salesData, setSalesData] = useState<any[]>([])
+  const [inventoryTrends, setInventoryTrends] = useState<any[]>([])
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadStats()
+    loadDashboardData()
   }, [])
 
-  const loadStats = async () => {
+  const loadDashboardData = async () => {
     setLoading(true)
     try {
-      const [invStats, leadStats, analytics] = await Promise.all([
-        inventoryService.getInventoryStats(),
-        leadsService.getLeadStats(),
-        analyticsService.getMetrics(),
+      const [
+        dashboardMetrics,
+        kpiData,
+        sales,
+        trends,
+        activity
+      ] = await Promise.all([
+        dashboardService.getDashboardMetrics(),
+        dashboardService.getKpiCards(),
+        dashboardService.getSalesData(),
+        dashboardService.getInventoryTrends(),
+        dashboardService.getRecentActivity()
       ])
 
-      setStats({
-        inventory: invStats,
-        leads: leadStats,
-        analytics,
-      })
+      setMetrics(dashboardMetrics)
+      setKpiCards(kpiData)
+      setSalesData(sales)
+      setInventoryTrends(trends)
+      setRecentActivity(activity)
     } catch (err) {
-      console.error('Failed to load stats', err)
+      console.error('Failed to load dashboard data', err)
     } finally {
       setLoading(false)
     }
   }
 
+  const getIcon = (iconName: string) => {
+    const icons: any = {
+      Car: <Car className="w-6 h-6" />,
+      TrendingUp: <TrendingUp className="w-6 h-6" />,
+      Users: <Users className="w-6 h-6" />,
+      DollarSign: <DollarSign className="w-6 h-6" />,
+      Calendar: <Calendar className="w-6 h-6" />,
+      Target: <Target className="w-6 h-6" />,
+      BarChart3: <BarChart3 className="w-6 h-6" />,
+      Activity: <Activity className="w-6 h-6" />
+    }
+    return icons[iconName] || <Activity className="w-6 h-6" />
+  }
+
   if (loading) {
-    return <div className="text-center py-12">Loading...</div>
+    return (
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="h-64 bg-gray-100 rounded animate-pulse" />
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="h-64 bg-gray-100 rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -51,95 +105,114 @@ export default function DashboardHome() {
           <h1 className="text-4xl font-bold text-primary">Dashboard</h1>
           <p className="text-gray-600 mt-2">Welcome back to Eagle Vision Edge</p>
         </div>
+        <div className="flex gap-3">
+          <Button variant="secondary" onClick={loadDashboardData}>
+            <Activity className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Total Inventory</p>
-              <p className="text-3xl font-bold text-primary mt-2">{stats?.inventory?.total || 0}</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Available</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{stats?.inventory?.available || 0}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Active Leads</p>
-              <p className="text-3xl font-bold text-orange-600 mt-2">{stats?.leads?.total || 0}</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-orange-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Monthly Revenue</p>
-              <p className="text-3xl font-bold text-purple-600 mt-2">
-                ${(stats?.analytics?.monthlyRevenue / 1000).toFixed(0)}K
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </Card>
+        {kpiCards?.map((card, index) => (
+          <DashboardCard
+            key={index}
+            title={card.title}
+            value={card.value}
+            change={card.change}
+            changeType={card.changeType}
+            icon={getIcon(card.icon)}
+            color={card.color}
+          />
+        ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <h3 className="text-lg font-bold text-primary mb-4">Quick Actions</h3>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sales Chart */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Sales</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={salesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="sales" fill="#3b82f6" />
+              <Bar dataKey="target" fill="#e5e7eb" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Inventory Trends */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventory Trends</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={inventoryTrends}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="available" stroke="#10b981" strokeWidth={2} />
+              <Line type="monotone" dataKey="sold" stroke="#ef4444" strokeWidth={2} />
+              <Line type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Quick Actions & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
           <div className="space-y-2">
-            <Button variant="secondary" className="w-full justify-start" size="md">
-              + Add Vehicle
+            <Button variant="secondary" className="w-full justify-start">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Vehicle
             </Button>
-            <Button variant="secondary" className="w-full justify-start" size="md">
-              + New Lead
+            <Button variant="secondary" className="w-full justify-start">
+              <Users className="w-4 h-4 mr-2" />
+              New Lead
             </Button>
-            <Button variant="secondary" className="w-full justify-start" size="md">
+            <Button variant="secondary" className="w-full justify-start">
+              <Eye className="w-4 h-4 mr-2" />
               View Reports
             </Button>
+            <Button variant="secondary" className="w-full justify-start">
+              <Calendar className="w-4 h-4 mr-2" />
+              Schedule Test Drive
+            </Button>
           </div>
-        </Card>
+        </div>
 
-        <Card>
-          <h3 className="text-lg font-bold text-primary mb-4">Inventory Status</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Available</span>
-              <StatusBadge status={`${stats?.inventory?.available || 0}`} variant="success" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Sold</span>
-              <StatusBadge status={`${stats?.inventory?.sold || 0}`} variant="error" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Rented</span>
-              <StatusBadge status={`${stats?.inventory?.rented || 0}`} variant="warning" />
-            </div>
+        {/* Recent Activity */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+            <Button variant="ghost" size="sm">
+              View All
+            </Button>
           </div>
-        </Card>
+          <div className="space-y-3">
+            {recentActivity?.slice(0, 5).map((activity) => (
+              <div key={activity.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                <div className={`w-2 h-2 rounded-full mt-2 ${
+                  activity.priority === 'high' ? 'bg-red-500' :
+                  activity.priority === 'medium' ? 'bg-yellow-500' : 'bg-gray-400'
+                }`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                  <p className="text-sm text-gray-500 truncate">{activity.description}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(activity.timestamp).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

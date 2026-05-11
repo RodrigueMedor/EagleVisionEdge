@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { ArrowLeft, Phone, Mail, Calendar, MapPin, DollarSign, Car, Fuel, Settings, Palette, Shield, Star, Share2 } from 'lucide-react'
-import Card from '@/components/ui/Card'
+import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import { inventoryService } from '@/services/inventoryService'
 import { mockVehicles } from '@/data/mockVehicles'
@@ -44,12 +44,17 @@ export default function VehicleDetailPage() {
     }).format(value)
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(date)
+  const formatDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(dateObj)
+    } catch (error) {
+      return 'Invalid Date'
+    }
   }
 
   const handleContactClick = () => {

@@ -29,6 +29,7 @@ const CustomerDetailPage = lazy(() => import('@/pages/dashboard/Customers/Custom
 const AnalyticsPage = lazy(() => import('@/pages/dashboard/AnalyticsPage'))
 const SettingsPage = lazy(() => import('@/pages/dashboard/SettingsPage'))
 const RentalsManagementPage = lazy(() => import('@/pages/dashboard/RentalsManagementPage'))
+const AIDashboard = lazy(() => import('@/pages/dashboard/AIDashboard'))
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
@@ -65,6 +66,7 @@ export default function Routes() {
             <Route path="/dashboard/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/dashboard/rentals" element={<RentalsManagementPage />} />
             <Route path="/dashboard/analytics" element={<AnalyticsPage />} />
+            <Route path="/dashboard/ai" element={<AIDashboard />} />
             <Route path="/dashboard/settings" element={<SettingsPage />} />
           </Route>
         </Route>

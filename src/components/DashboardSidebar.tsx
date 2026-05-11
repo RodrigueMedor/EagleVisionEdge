@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   Truck,
+  Bot,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAppDispatch } from '@/store/hooks'
@@ -22,6 +23,7 @@ const menuItems = [
   { label: 'Leads', icon: Users, href: '/dashboard/leads' },
   { label: 'Customers', icon: Users, href: '/dashboard/customers' },
   { label: 'Rentals', icon: Truck, href: '/dashboard/rentals' },
+  { label: 'AI Assistant', icon: Bot, href: '/dashboard/ai' },
   { label: 'Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
   { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
 ]

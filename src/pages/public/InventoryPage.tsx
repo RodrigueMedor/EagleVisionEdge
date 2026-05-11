@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search, Filter, Car, DollarSign, Fuel, Calendar, MapPin } from 'lucide-react'
-import Card from '@/components/ui/Card'
+import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
@@ -347,4 +347,3 @@ export default function InventoryPage() {
     </div>
   )
 }
-

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Edit, Trash2, Phone, Mail, Calendar, DollarSign, Car, Fuel, Settings, Palette } from 'lucide-react'
-import Card, { StatusBadge } from '@/components/ui/Card'
+import { Card, StatusBadge } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import { inventoryService } from '@/services/inventoryService'
@@ -61,12 +61,17 @@ export default function VehicleDetailsPage() {
     }).format(value)
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(date)
+  const formatDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(dateObj)
+    } catch (error) {
+      return 'Invalid Date'
+    }
   }
 
   if (loading) {

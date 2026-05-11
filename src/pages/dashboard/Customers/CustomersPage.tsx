@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Search, Filter, Plus, Eye, Edit, Phone, Mail, Calendar, MapPin, Car, User, Star } from 'lucide-react'
-import Card, { StatusBadge } from '@/components/ui/Card'
+import { Link } from 'react-router-dom'
+import { Search, Filter, Plus, Eye, Edit, Phone, Mail, Calendar, MapPin, Car, User, Star, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
+import { Pagination } from '@/components/ui/Pagination'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { TableSkeleton } from '@/components/ui/LoadingSkeleton'
 import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
-import { mockCustomers } from '@/data/mockCustomers'
+import { customersService } from '@/services/customersService'
 import { Customer } from '@/types/customer'
 
 const customerStatuses = [
@@ -18,10 +21,13 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('createdAt')
-  const [showFilters, setShowFilters] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    sortBy: 'createdAt'
+  })
 
   useEffect(() => {
     loadCustomers()
@@ -29,16 +35,20 @@ export default function CustomersPage() {
 
   useEffect(() => {
     filterAndSortCustomers()
-  }, [customers, searchTerm, statusFilter, sortBy])
+  }, [customers, filters])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
 
   const loadCustomers = async () => {
     setLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setCustomers(mockCustomers)
+      const data = await customersService.getCustomers()
+      setCustomers(data)
     } catch (err) {
       console.error('Failed to load customers', err)
+      setCustomers([])
     } finally {
       setLoading(false)
     }
@@ -48,27 +58,35 @@ export default function CustomersPage() {
     let filtered = customers
 
     // Apply search filter
-    if (searchTerm) {
+    if (filters.search) {
       filtered = filtered.filter(customer =>
-        (customer.name || `${customer.firstName} ${customer.lastName}`).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm)
+        (customer.name || `${customer.firstName} ${customer.lastName}`).toLowerCase().includes(filters.search.toLowerCase()) ||
+        customer.email.toLowerCase().includes(filters.search.toLowerCase()) ||
+        customer.phone.includes(filters.search) ||
+        (customer.address || '').toLowerCase().includes(filters.search.toLowerCase()) ||
+        (customer.city || '').toLowerCase().includes(filters.search.toLowerCase())
       )
     }
 
     // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(customer => customer.status === statusFilter)
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(customer => customer.status === filters.status)
     }
 
     // Apply sorting
     filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
+      switch (filters.sortBy) {
+        case 'name-asc':
           return (a.name || `${a.firstName} ${a.lastName}`).localeCompare(b.name || `${b.firstName} ${b.lastName}`)
+        case 'name-desc':
+          return (b.name || `${b.firstName} ${b.lastName}`).localeCompare(a.name || `${a.firstName} ${a.lastName}`)
         case 'email':
           return a.email.localeCompare(b.email)
-        case 'createdAt':
+        case 'segment':
+          return a.segment.localeCompare(b.segment)
+        case 'date-asc':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        case 'date-desc':
         default:
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       }
@@ -77,12 +95,17 @@ export default function CustomersPage() {
     setFilteredCustomers(filtered)
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }).format(date)
+  const formatDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(dateObj)
+    } catch (error) {
+      return 'Invalid Date'
+    }
   }
 
   const getStatusVariant = (status: string) => {
@@ -96,8 +119,25 @@ export default function CustomersPage() {
     }
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage)
+  const paginatedCustomers = filteredCustomers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
   if (loading) {
-    return <div className="text-center py-12">Loading customers...</div>
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-primary">Customers</h1>
+            <p className="text-gray-600 mt-2">Manage and track your customer relationships</p>
+          </div>
+        </div>
+        <TableSkeleton rows={8} columns={5} />
+      </div>
+    )
   }
 
   return (
@@ -116,17 +156,17 @@ export default function CustomersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">Total Customers</p>
               <p className="text-2xl font-bold text-primary">{customers.length}</p>
             </div>
-            <User className="w-8 h-8 text-blue-600" />
+            <Users className="w-8 h-8 text-blue-600" />
           </div>
-        </Card>
+        </div>
 
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">Active Customers</p>
@@ -134,21 +174,21 @@ export default function CustomersPage() {
                 {customers.filter(c => c.status === 'active').length}
               </p>
             </div>
-            <StatusBadge status="Active" variant="success" />
+            <StatusBadge status="Active" variant="active" />
           </div>
-        </Card>
+        </div>
 
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">New This Month</p>
               <p className="text-2xl font-bold text-blue-600">12</p>
             </div>
-            <Calendar className="w-8 h-8 text-orange-600" />
+            <TrendingUp className="w-8 h-8 text-orange-600" />
           </div>
-        </Card>
+        </div>
 
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">VIP Customers</p>
@@ -158,136 +198,151 @@ export default function CustomersPage() {
             </div>
             <Star className="w-8 h-8 text-yellow-600" />
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card>
-        <div className="flex items-center gap-4 mb-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, email, or phone..."
-              className="pl-10"
-            />
-          </div>
-          
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-48"
-          >
-            <option value="all">All Status</option>
-            {customerStatuses.map(status => (
-              <option key={status.value} value={status.value}>{status.label}</option>
-            ))}
-          </Select>
+      <SearchFilterBar
+        searchValue={filters.search}
+        onSearchChange={(value) => setFilters({ ...filters, search: value })}
+        filters={{
+          status: filters.status,
+          sortBy: filters.sortBy
+        }}
+        onFilterChange={(newFilters) => setFilters({ ...filters, ...newFilters })}
+        placeholder="Search by name, email, phone, or location..."
+      />
 
-          <Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="w-48"
-          >
-            <option value="createdAt">Date Added</option>
-            <option value="name">Name</option>
-            <option value="email">Email</option>
-          </Select>
-
-          <Button 
-            variant="secondary" 
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            More Filters
-          </Button>
-        </div>
-      </Card>
-
-      {/* Customers Table */}
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Customer</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Contact</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Joined</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCustomers.map((customer) => (
-                <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{customer.name}</p>
-                        <p className="text-sm text-gray-600">
-                          {customer.segment === 'vip' && <Star className="w-3 h-3 inline text-yellow-500" />}
-                          {customer.status}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-600">{customer.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-600">{customer.phone}</span>
-                      </div>
-                      {customer.address && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-3 h-3 text-gray-400" />
-                          <span className="text-sm text-gray-600">{customer.address}</span>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <StatusBadge 
-                      status={customer.status} 
-                      variant={getStatusVariant(customer.status)}
-                    />
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="text-sm text-gray-600">
-                      {formatDate(customer.createdAt)}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Button variant="secondary" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="secondary" size="sm">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {filteredCustomers.length === 0 && (
-            <div className="text-center py-8">
-              <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No customers found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria</p>
-            </div>
+      {/* Customers Display */}
+      {paginatedCustomers.length === 0 ? (
+        <EmptyState
+          type="general"
+          title="No customers found"
+          description={filteredCustomers.length === 0 ? 
+            "No customers match your current filters. Try adjusting your search criteria." :
+            "No customers in your system yet."
+          }
+          action={filteredCustomers.length === 0 ? (
+            <Button variant="secondary" onClick={() => setFilters({ search: '', status: '', sortBy: 'createdAt' })}>
+              Clear Filters
+            </Button>
+          ) : (
+            <Button variant="primary">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Your First Customer
+            </Button>
           )}
+        />
+      ) : (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Segment
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Joined
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {paginatedCustomers.map((customer) => (
+                  <tr key={customer.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-gray-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{customer.name}</p>
+                          <p className="text-sm text-gray-500">
+                            {customer.segment === 'vip' && <Star className="w-3 h-3 inline text-yellow-500 mr-1" />}
+                            {customer.status}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3 text-gray-400" />
+                          <span className="text-sm text-gray-600">{customer.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3 text-gray-400" />
+                          <span className="text-sm text-gray-600">{customer.phone}</span>
+                        </div>
+                        {customer.city && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm text-gray-600">{customer.city}, {customer.state}</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <StatusBadge 
+                        status={customer.status} 
+                        variant={customer.status as any}
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900 capitalize">{customer.segment}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">
+                        {formatDate(customer.createdAt)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        <Link to={`/dashboard/customers/${customer.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Link to={`/dashboard/customers/${customer.id}/edit`}>
+                          <Button variant="ghost" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </Card>
+      )}
+
+      {/* Pagination */}
+      {paginatedCustomers.length > 0 && (
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-gray-700">
+            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredCustomers.length)} of {filteredCustomers.length} customers
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   )
 }

@@ -1,15 +1,21 @@
-import { useState } from 'react'
-import { User, Bell, Shield, Palette, Database, HelpCircle } from 'lucide-react'
-import Card from '@/components/ui/Card'
+import { useState, useEffect } from 'react'
+import { User, Bell, Shield, Palette, Database, HelpCircle, Building, Mail, Phone, MapPin, Globe, CreditCard } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { useAuth } from '@/hooks'
+import { settingsService } from '@/services/settingsService'
+import { DealershipSettings, UserSettings } from '@/types/settings'
 
 export default function SettingsPage() {
   const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState('profile')
+  const [activeTab, setActiveTab] = useState('dealership')
+  const [dealershipSettings, setDealershipSettings] = useState<DealershipSettings | null>(null)
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const tabs = [
+    { id: 'dealership', label: 'Dealership', icon: Building },
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
@@ -17,6 +23,52 @@ export default function SettingsPage() {
     { id: 'data', label: 'Data & Privacy', icon: Database },
     { id: 'help', label: 'Help & Support', icon: HelpCircle },
   ]
+
+  useEffect(() => {
+    loadSettings()
+  }, [])
+
+  const loadSettings = async () => {
+    setLoading(true)
+    try {
+      const [dealership, userSettings] = await Promise.all([
+        settingsService.getDealershipSettings(),
+        settingsService.getUserSettings(user?.id || 'current-user')
+      ])
+      setDealershipSettings(dealership)
+      setUserSettings(userSettings)
+    } catch (error) {
+      console.error('Failed to load settings:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const saveDealershipSettings = async () => {
+    if (!dealershipSettings) return
+    setSaving(true)
+    try {
+      await settingsService.updateDealershipSettings(dealershipSettings)
+      // Show success notification
+    } catch (error) {
+      console.error('Failed to save dealership settings:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const saveUserSettings = async () => {
+    if (!userSettings) return
+    setSaving(true)
+    try {
+      await settingsService.updateUserSettings(user?.id || 'current-user', userSettings)
+      // Show success notification
+    } catch (error) {
+      console.error('Failed to save user settings:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -28,15 +80,15 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <Card>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
             <nav className="space-y-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-smooth ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-primary text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
@@ -45,17 +97,125 @@ export default function SettingsPage() {
                 </button>
               ))}
             </nav>
-          </Card>
+          </div>
         </div>
 
         {/* Content */}
         <div className="lg:col-span-3">
+          {activeTab === 'dealership' && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold mb-6">Dealership Information</h2>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Dealership Name</label>
+                    <Input
+                      value={dealershipSettings?.name || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {...prev, name: e.target.value} : null)}
+                      placeholder="Enter dealership name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <Input
+                      value={dealershipSettings?.contact?.phone || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        contact: { ...prev.contact, phone: e.target.value }
+                      } : null)}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <Input
+                      value={dealershipSettings?.contact?.email || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        contact: { ...prev.contact, email: e.target.value }
+                      } : null)}
+                      type="email"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                    <Input
+                      value={dealershipSettings?.contact?.website || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        contact: { ...prev.contact, website: e.target.value }
+                      } : null)}
+                      placeholder="Enter website URL"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                    <Input
+                      value={dealershipSettings?.address?.street || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        address: { ...prev.address, street: e.target.value }
+                      } : null)}
+                      placeholder="Enter street address"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <Input
+                      value={dealershipSettings?.address?.city || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        address: { ...prev.address, city: e.target.value }
+                      } : null)}
+                      placeholder="Enter city"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <Input
+                      value={dealershipSettings?.address?.state || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        address: { ...prev.address, state: e.target.value }
+                      } : null)}
+                      placeholder="Enter state"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                    <Input
+                      value={dealershipSettings?.address?.zipCode || ''}
+                      onChange={(e) => setDealershipSettings(prev => prev ? {
+                        ...prev, 
+                        address: { ...prev.address, zipCode: e.target.value }
+                      } : null)}
+                      placeholder="Enter ZIP code"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button onClick={saveDealershipSettings} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  <Button variant="secondary" onClick={loadSettings}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'profile' && (
-            <Card>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold mb-6">Profile Information</h2>
               <div className="space-y-6">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
+                  <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
                     <span className="text-2xl font-bold text-white">
                       {user?.name.charAt(0).toUpperCase()}
                     </span>
@@ -69,35 +229,50 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    label="Full Name"
-                    defaultValue={user?.name}
-                  />
-                  <Input
-                    label="Email Address"
-                    defaultValue={user?.email}
-                    type="email"
-                  />
-                  <Input
-                    label="Phone Number"
-                    placeholder="+1 (555) 123-4567"
-                  />
-                  <Input
-                    label="Job Title"
-                    defaultValue={user?.role.replace('_', ' ').toUpperCase()}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <Input
+                      value={user?.name || ''}
+                      placeholder="Enter full name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <Input
+                      value={user?.email || ''}
+                      type="email"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <Input
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                    <Input
+                      value={user?.role?.replace('_', ' ').toUpperCase() || ''}
+                      placeholder="Enter job title"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <Button>Save Changes</Button>
-                  <Button variant="secondary">Cancel</Button>
+                  <Button onClick={saveUserSettings} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  <Button variant="secondary" onClick={loadSettings}>
+                    Cancel
+                  </Button>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
 
           {activeTab === 'notifications' && (
-            <Card>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold mb-6">Notification Preferences</h2>
               <div className="space-y-4">
                 {[
@@ -112,7 +287,7 @@ export default function SettingsPage() {
                     <span className="font-medium">{item}</span>
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-primary rounded focus:ring-primary"
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       defaultChecked={index < 3}
                     />
                   </label>
@@ -121,31 +296,40 @@ export default function SettingsPage() {
               <div className="mt-6">
                 <Button>Update Preferences</Button>
               </div>
-            </Card>
+            </div>
           )}
 
           {activeTab === 'security' && (
             <div className="space-y-6">
-              <Card>
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold mb-6">Password</h2>
                 <div className="space-y-4">
-                  <Input
-                    label="Current Password"
-                    type="password"
-                  />
-                  <Input
-                    label="New Password"
-                    type="password"
-                  />
-                  <Input
-                    label="Confirm New Password"
-                    type="password"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                    <Input
+                      type="password"
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                    <Input
+                      type="password"
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                    <Input
+                      type="password"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
                   <Button>Update Password</Button>
                 </div>
-              </Card>
+              </div>
 
-              <Card>
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold mb-6">Two-Factor Authentication</h2>
                 <div className="space-y-4">
                   <p className="text-gray-600">
@@ -153,16 +337,16 @@ export default function SettingsPage() {
                   </p>
                   <Button variant="secondary">Enable 2FA</Button>
                 </div>
-              </Card>
+              </div>
             </div>
           )}
 
           {activeTab === 'appearance' && (
-            <Card>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold mb-6">Appearance</h2>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-primary mb-3">Theme</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Theme</label>
                   <div className="grid grid-cols-3 gap-4">
                     {['Light', 'Dark', 'System'].map((theme) => (
                       <label key={theme} className="cursor-pointer">
@@ -172,7 +356,7 @@ export default function SettingsPage() {
                           className="sr-only peer"
                           defaultChecked={theme === 'Light'}
                         />
-                        <div className="p-4 border-2 rounded-lg peer-checked:border-primary peer-checked:bg-primary/5">
+                        <div className="p-4 border-2 rounded-lg peer-checked:border-blue-600 peer-checked:bg-blue-50">
                           <p className="font-medium text-center">{theme}</p>
                         </div>
                       </label>
@@ -181,8 +365,8 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-primary mb-3">Language</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Language</label>
+                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option>English (US)</option>
                     <option>Spanish</option>
                     <option>French</option>
@@ -192,11 +376,11 @@ export default function SettingsPage() {
 
                 <Button>Save Preferences</Button>
               </div>
-            </Card>
+            </div>
           )}
 
           {activeTab === 'data' && (
-            <Card>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold mb-6">Data & Privacy</h2>
               <div className="space-y-6">
                 <div className="space-y-4">
@@ -212,14 +396,14 @@ export default function SettingsPage() {
                   <p className="text-gray-600">
                     Permanently delete your account and all associated data. This action cannot be undone.
                   </p>
-                  <Button variant="accent">Delete Account</Button>
+                  <Button variant="destructive">Delete Account</Button>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
 
           {activeTab === 'help' && (
-            <Card>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold mb-6">Help & Support</h2>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -244,11 +428,11 @@ export default function SettingsPage() {
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>Version: 1.0.0</p>
                     <p>Last Updated: November 2024</p>
-                    <p>License: {user?.dealership.name}</p>
+                    <p>License: {user?.dealership?.name || 'Eagle Vision Edge'}</p>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
         </div>
       </div>

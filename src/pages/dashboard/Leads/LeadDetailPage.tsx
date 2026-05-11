@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Edit, Phone, Mail, Calendar, MapPin, DollarSign, Car, MessageSquare, Clock, User, CheckCircle } from 'lucide-react'
-import Card, { StatusBadge } from '@/components/ui/Card'
+import { Card, StatusBadge } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
@@ -94,14 +94,19 @@ export default function LeadDetailPage() {
     }).format(value)
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
+  const formatDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(dateObj)
+    } catch (error) {
+      return 'Invalid Date'
+    }
   }
 
   const getStatusVariant = (status: string) => {

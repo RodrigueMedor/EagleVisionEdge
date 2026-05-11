@@ -4,6 +4,7 @@ import Routes from '@/routes'
 import { useEffect } from 'react'
 import { useAppDispatch } from '@/store/hooks'
 import { restoreAuth } from '@/store/slices/authSlice'
+import AIChatWidget from '@/components/ai/AIChatWidget'
 
 function AppContent() {
   const dispatch = useAppDispatch()
@@ -24,7 +25,12 @@ function AppContent() {
     }
   }, [dispatch])
 
-  return <Routes />
+  return (
+    <>
+      <Routes />
+      <AIChatWidget />
+    </>
+  )
 }
 
 function App() {

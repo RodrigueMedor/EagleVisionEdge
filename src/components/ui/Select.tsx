@@ -4,6 +4,7 @@ import { clsx } from 'clsx'
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
+  placeholder?: string
   options?: Array<{ value: string | number; label: string }>
   children?: ReactNode
 }
@@ -26,7 +27,7 @@ export default function Select({ label, error, options, children, className, ...
         )}
         {...props}
       >
-        {!children && <option value="">Select an option</option>}
+        {!children && <option value="">{props.placeholder || 'Select an option'}</option>}
         {options ? options.map(opt => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -37,4 +38,3 @@ export default function Select({ label, error, options, children, className, ...
     </div>
   )
 }
-

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Edit, Phone, Mail, Calendar, MapPin, DollarSign, Car, User, CheckCircle } from 'lucide-react'
-import Card, { StatusBadge } from '@/components/ui/Card'
+import { Card, StatusBadge } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import { customersService } from '@/services/customersService'
 import { Customer } from '@/types/customer'

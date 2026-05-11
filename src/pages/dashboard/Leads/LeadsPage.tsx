@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Search, Filter, Plus, Eye, Edit, Phone, Mail, Calendar, User } from 'lucide-react'
-import Card, { StatusBadge } from '@/components/ui/Card'
+import { Link } from 'react-router-dom'
+import { Search, Filter, Plus, Eye, Edit, Phone, Mail, Calendar, User, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
+import { Pagination } from '@/components/ui/Pagination'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { TableSkeleton } from '@/components/ui/LoadingSkeleton'
 import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
 import { leadsService } from '@/services/leadsService'
-import { mockLeads } from '@/data/mockLeads'
 import { Lead, LeadStatus } from '@/types/lead'
 
 const leadStatuses = [
@@ -22,9 +24,13 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('createdAt')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    sortBy: 'createdAt'
+  })
 
   useEffect(() => {
     loadLeads()
@@ -32,7 +38,11 @@ export default function LeadsPage() {
 
   useEffect(() => {
     filterAndSortLeads()
-  }, [leads, searchTerm, statusFilter, sortBy])
+  }, [leads, filters])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
 
   const loadLeads = async () => {
     setLoading(true)
@@ -41,7 +51,7 @@ export default function LeadsPage() {
       setLeads(data)
     } catch (err) {
       console.error('Failed to load leads', err)
-      setLeads(mockLeads)
+      setLeads([])
     } finally {
       setLoading(false)
     }
@@ -51,30 +61,37 @@ export default function LeadsPage() {
     let filtered = leads
 
     // Apply search filter
-    if (searchTerm) {
+    if (filters.search) {
       filtered = filtered.filter(lead =>
-        (lead.customerName || `${lead.firstName} ${lead.lastName}`).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm) ||
-        (lead.vehicleInterest || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (lead.customerName || `${lead.firstName} ${lead.lastName}`).toLowerCase().includes(filters.search.toLowerCase()) ||
+        lead.email.toLowerCase().includes(filters.search.toLowerCase()) ||
+        lead.phone.includes(filters.search) ||
+        (lead.vehicleInterest || '').toLowerCase().includes(filters.search.toLowerCase()) ||
+        (lead.source || '').toLowerCase().includes(filters.search.toLowerCase())
       )
     }
 
     // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(lead => lead.status === statusFilter)
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(lead => lead.status === filters.status)
     }
 
     // Apply sorting
     filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'customerName':
+      switch (filters.sortBy) {
+        case 'name-asc':
           return (a.customerName || `${a.firstName} ${a.lastName}`).localeCompare(b.customerName || `${b.firstName} ${b.lastName}`)
+        case 'name-desc':
+          return (b.customerName || `${b.firstName} ${b.lastName}`).localeCompare(a.customerName || `${a.firstName} ${a.lastName}`)
         case 'status':
           return a.status.localeCompare(b.status)
-        case 'budget':
+        case 'budget-desc':
           return (b.budget || 0) - (a.budget || 0)
-        case 'createdAt':
+        case 'budget-asc':
+          return (a.budget || 0) - (b.budget || 0)
+        case 'date-asc':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        case 'date-desc':
         default:
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       }
@@ -121,9 +138,25 @@ export default function LeadsPage() {
     }).format(value)
   }
 
-  
+  // Pagination logic
+  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage)
+  const paginatedLeads = filteredLeads.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
   if (loading) {
-    return <div className="text-center py-12">Loading leads...</div>
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-primary">Leads Management</h1>
+            <p className="text-gray-600 mt-2">Manage and track your sales leads</p>
+          </div>
+        </div>
+        <TableSkeleton rows={8} columns={6} />
+      </div>
+    )
   }
 
   return (
@@ -142,17 +175,17 @@ export default function LeadsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">Total Leads</p>
               <p className="text-2xl font-bold text-primary">{leads.length}</p>
             </div>
-            <User className="w-8 h-8 text-blue-600" />
+            <Users className="w-8 h-8 text-blue-600" />
           </div>
-        </Card>
+        </div>
         
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">New Leads</p>
@@ -160,11 +193,11 @@ export default function LeadsPage() {
                 {leads.filter(l => l.status === 'new').length}
               </p>
             </div>
-            <StatusBadge status="New" variant="info" />
+            <StatusBadge status="New" variant="new" />
           </div>
-        </Card>
+        </div>
 
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">Active</p>
@@ -172,11 +205,11 @@ export default function LeadsPage() {
                 {leads.filter(l => ['contacted', 'appointment_scheduled', 'financing_pending', 'negotiation'].includes(l.status)).length}
               </p>
             </div>
-            <StatusBadge status="Active" variant="warning" />
+            <StatusBadge status="Active" variant="active" />
           </div>
-        </Card>
+        </div>
 
-        <Card>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">Converted</p>
@@ -184,142 +217,169 @@ export default function LeadsPage() {
                 {leads.filter(l => l.status === 'sold').length}
               </p>
             </div>
-            <StatusBadge status="Sold" variant="success" />
+            <StatusBadge status="Sold" variant="sold" />
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Search by name, email, phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Status</option>
-            {leadStatuses.map(status => (
-              <option key={status.value} value={status.value}>{status.label}</option>
-            ))}
-          </Select>
+      <SearchFilterBar
+        searchValue={filters.search}
+        onSearchChange={(value) => setFilters({ ...filters, search: value })}
+        filters={{
+          status: filters.status,
+          sortBy: filters.sortBy
+        }}
+        onFilterChange={(newFilters) => setFilters({ ...filters, ...newFilters })}
+        placeholder="Search by name, email, phone, or source..."
+      />
 
-          <Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="createdAt">Date Created</option>
-            <option value="customerName">Customer Name</option>
-            <option value="status">Status</option>
-            <option value="budget">Budget</option>
-          </Select>
-
-          <Button variant="secondary" size="md">
-            <Filter className="w-4 h-4 mr-2" />
-            More Filters
-          </Button>
-        </div>
-      </Card>
-
-      {/* Leads Table */}
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Customer</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Contact</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Vehicle Interest</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Budget</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Created</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeads.map((lead) => (
-                <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <div>
-                      <p className="font-medium text-gray-900">{lead.customerName || `${lead.firstName} ${lead.lastName}`}</p>
-                      <p className="text-sm text-gray-500">ID: {lead.id}</p>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-600">{lead.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-600">{lead.phone}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <p className="text-sm text-gray-900">{lead.vehicleInterest}</p>
-                  </td>
-                  <td className="py-3 px-4">
-                    {lead.budget ? (
-                      <span className="text-sm font-medium text-gray-900">
-                        {formatCurrency(lead.budget)}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-500">Not specified</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <Select
-                      value={lead.status}
-                      onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                      className="text-sm"
-                    >
-                      {leadStatuses.map(status => (
-                        <option key={status.value} value={status.value}>
-                          {status.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3 h-3 text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {formatDate(lead.createdAt)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Button variant="secondary" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="secondary" size="sm">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {filteredLeads.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No leads found matching your criteria</p>
-            </div>
+      {/* Leads Display */}
+      {paginatedLeads.length === 0 ? (
+        <EmptyState
+          type="leads"
+          title="No leads found"
+          description={filteredLeads.length === 0 ? 
+            "No leads match your current filters. Try adjusting your search criteria." :
+            "No leads in your system yet."
+          }
+          action={filteredLeads.length === 0 ? (
+            <Button variant="secondary" onClick={() => setFilters({ search: '', status: '', sortBy: 'createdAt' })}>
+              Clear Filters
+            </Button>
+          ) : (
+            <Button variant="primary">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Your First Lead
+            </Button>
           )}
+        />
+      ) : (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Vehicle Interest
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Budget
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {paginatedLeads.map((lead) => (
+                  <tr key={lead.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {lead.customerName || `${lead.firstName} ${lead.lastName}`}
+                        </p>
+                        <p className="text-sm text-gray-500">ID: {lead.id}</p>
+                        {lead.source && (
+                          <p className="text-xs text-gray-400">Source: {lead.source}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3 text-gray-400" />
+                          <span className="text-sm text-gray-600">{lead.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3 text-gray-400" />
+                          <span className="text-sm text-gray-600">{lead.phone}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <p className="text-sm text-gray-900">{lead.vehicleInterest}</p>
+                      {lead.score && (
+                        <p className="text-xs text-gray-500">Score: {lead.score}</p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {lead.budget ? (
+                        <span className="text-sm font-medium text-gray-900">
+                          {formatCurrency(lead.budget)}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-500">Not specified</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={lead.status}
+                        onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
+                        className="text-sm border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        {leadStatuses.map(status => (
+                          <option key={status.value} value={status.value}>
+                            {status.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          {formatDate(lead.createdAt)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        <Link to={`/dashboard/leads/${lead.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Link to={`/dashboard/leads/${lead.id}/edit`}>
+                          <Button variant="ghost" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </Card>
+      )}
+
+      {/* Pagination */}
+      {paginatedLeads.length > 0 && (
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-gray-700">
+            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredLeads.length)} of {filteredLeads.length} leads
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   )
 }

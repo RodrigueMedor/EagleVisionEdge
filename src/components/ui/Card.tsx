@@ -8,7 +8,7 @@ interface CardProps {
   onClick?: () => void
 }
 
-export default function Card({ children, className, hoverable, onClick }: CardProps) {
+export function Card({ children, className, hoverable, onClick }: CardProps) {
   return (
     <div
       className={clsx(
@@ -70,4 +70,3 @@ export function Skeleton({ width = '100%', height = '20px', className, count = 1
     </>
   )
 }
-
