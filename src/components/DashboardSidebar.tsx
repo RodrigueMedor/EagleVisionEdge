@@ -11,11 +11,15 @@ import {
   X,
   Truck,
   Bot,
+  AlertTriangle,
+  Car,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAppDispatch } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
 import { useAuth } from '@/hooks'
+import { useNavigate } from 'react-router-dom'
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher'
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -23,6 +27,9 @@ const menuItems = [
   { label: 'Leads', icon: Users, href: '/dashboard/leads' },
   { label: 'Customers', icon: Users, href: '/dashboard/customers' },
   { label: 'Rentals', icon: Truck, href: '/dashboard/rentals' },
+  { label: 'CRM', icon: Bot, href: '/dashboard/crm' },
+  { label: 'Virtual Showroom', icon: Car, href: '/dashboard/virtual-showroom' },
+  { label: 'Predictive Maintenance', icon: AlertTriangle, href: '/dashboard/predictive-maintenance' },
   { label: 'AI Assistant', icon: Bot, href: '/dashboard/ai' },
   { label: 'Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
   { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
@@ -31,11 +38,14 @@ const menuItems = [
 export default function DashboardSidebar() {
   const [isOpen, setIsOpen] = useState(true)
   const location = useLocation()
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { user } = useAuth()
 
   const handleLogout = () => {
     dispatch(logout())
+    // Navigate to login page after logout
+    navigate('/login')
   }
 
   const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/')
@@ -45,15 +55,15 @@ export default function DashboardSidebar() {
       {/* Mobile toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed bottom-6 right-6 z-40 bg-primary text-white p-3 rounded-full shadow-lg"
+        className="md:hidden fixed top-4 right-4 z-50 bg-primary dark:bg-gray-800 text-white p-3 rounded-lg shadow-lg"
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static left-0 top-0 h-screen w-64 bg-primary text-white transform transition-transform duration-300 z-40 md:z-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        className={`fixed md:sticky md:top-0 left-0 h-screen w-64 bg-primary dark:bg-gray-900 text-white transform transition-transform duration-300 z-40 md:z-10 md:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="h-full flex flex-col overflow-y-auto">
@@ -98,8 +108,9 @@ export default function DashboardSidebar() {
             ))}
           </nav>
 
-          {/* Logout */}
-          <div className="p-4 border-t border-white/10">
+          {/* Theme Switcher & Logout */}
+          <div className="p-4 border-t border-white/10 space-y-2">
+            <ThemeSwitcher />
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 transition-smooth"

@@ -1,5 +1,5 @@
-import { Routes as ReactRoutes, Route, Navigate } from 'react-router-dom'
-import ProtectedRoute from './ProtectedRoute'
+import { Routes as ReactRoutes, Route, Navigate, Outlet } from 'react-router-dom'
+import ProtectedRoute from '@/components/rbac/ProtectedRoute'
 import PublicLayout from '@/layouts/PublicLayout'
 import DashboardLayout from '@/layouts/DashboardLayout'
 
@@ -17,6 +17,7 @@ const ContactPage = lazy(() => import('@/pages/public/ContactPage'))
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
 const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'))
+const DealerLoginPage = lazy(() => import('@/pages/auth/DealerLoginPage'))
 const DashboardHome = lazy(() => import('@/pages/dashboard/DashboardHome'))
 const InventoryListPage = lazy(() => import('@/pages/dashboard/Inventory/InventoryListPage'))
 const AddVehiclePage = lazy(() => import('@/pages/dashboard/Inventory/AddVehiclePage'))
@@ -30,6 +31,24 @@ const AnalyticsPage = lazy(() => import('@/pages/dashboard/AnalyticsPage'))
 const SettingsPage = lazy(() => import('@/pages/dashboard/SettingsPage'))
 const RentalsManagementPage = lazy(() => import('@/pages/dashboard/RentalsManagementPage'))
 const AIDashboard = lazy(() => import('@/pages/dashboard/AIDashboard'))
+
+// CRM Pages
+const CRMDashboardPage = lazy(() => import('@/pages/dashboard/CRM/CRMDashboardPage'))
+const CRMLeadManagementPage = lazy(() => import('@/pages/dashboard/CRM/LeadManagementPage'))
+const CRMSalesPipelinePage = lazy(() => import('@/pages/dashboard/CRM/SalesPipelinePage'))
+const CRMCustomerProfilePage = lazy(() => import('@/pages/dashboard/CRM/CustomerProfilePage'))
+const CRMFollowUpManagementPage = lazy(() => import('@/pages/dashboard/CRM/FollowUpManagementPage'))
+const CRMCommunicationCenterPage = lazy(() => import('@/pages/dashboard/CRM/CommunicationCenterPage'))
+const CRMFinancingWorkflowPage = lazy(() => import('@/pages/dashboard/CRM/FinancingWorkflowPage'))
+const CRMRentalWorkflowPage = lazy(() => import('@/pages/dashboard/CRM/RentalWorkflowPage'))
+const CRMAIRecommendationsPage = lazy(() => import('@/pages/dashboard/CRM/AIRecommendationsPage'))
+const CRMAnalyticsPage = lazy(() => import('@/pages/dashboard/CRM/CRMAnalyticsPage'))
+
+// Phase 3 Advanced Features
+const VirtualShowroomPage = lazy(() => import('@/pages/dashboard/VirtualShowroom/VirtualShowroomPage'))
+const PredictiveMaintenancePage = lazy(() => import('@/pages/dashboard/PredictiveMaintenance/PredictiveMaintenancePage'))
+const UserManagementPage = lazy(() => import('@/components/rbac/UserManagementDashboard'))
+const PermissionManagementPage = lazy(() => import('@/components/rbac/PermissionManagement'))
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
@@ -50,10 +69,11 @@ export default function Routes() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/dealer-login" element={<DealerLoginPage />} />
         </Route>
 
         {/* Protected dashboard routes */}
-        <Route element={<ProtectedRoute redirectTo="/login" />}>
+        <Route element={<ProtectedRoute fallbackPath="/login"><Outlet /></ProtectedRoute>}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardHome />} />
             <Route path="/dashboard/inventory" element={<InventoryListPage />} />
@@ -68,6 +88,22 @@ export default function Routes() {
             <Route path="/dashboard/analytics" element={<AnalyticsPage />} />
             <Route path="/dashboard/ai" element={<AIDashboard />} />
             <Route path="/dashboard/settings" element={<SettingsPage />} />
+            <Route path="/dashboard/users" element={<UserManagementPage />} />
+            <Route path="/dashboard/permissions" element={<PermissionManagementPage />} />
+            {/* CRM Routes */}
+            <Route path="/dashboard/crm" element={<CRMDashboardPage />} />
+            <Route path="/dashboard/crm/leads" element={<CRMLeadManagementPage />} />
+            <Route path="/dashboard/crm/pipeline" element={<CRMSalesPipelinePage />} />
+            <Route path="/dashboard/crm/customers/:id" element={<CRMCustomerProfilePage />} />
+            <Route path="/dashboard/crm/follow-ups" element={<CRMFollowUpManagementPage />} />
+            <Route path="/dashboard/crm/communications" element={<CRMCommunicationCenterPage />} />
+            <Route path="/dashboard/crm/financing" element={<CRMFinancingWorkflowPage />} />
+            <Route path="/dashboard/crm/rentals" element={<CRMRentalWorkflowPage />} />
+            <Route path="/dashboard/crm/ai-recommendations" element={<CRMAIRecommendationsPage />} />
+            <Route path="/dashboard/crm/analytics" element={<CRMAnalyticsPage />} />
+            {/* Phase 3 Advanced Features */}
+            <Route path="/dashboard/virtual-showroom" element={<VirtualShowroomPage />} />
+            <Route path="/dashboard/predictive-maintenance" element={<PredictiveMaintenancePage />} />
           </Route>
         </Route>
 
@@ -77,5 +113,3 @@ export default function Routes() {
     </Suspense>
   )
 }
-
-

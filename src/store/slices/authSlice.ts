@@ -1,16 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-export interface User {
-  id: string
-  email: string
-  name: string
-  role: 'admin' | 'manager' | 'sales_rep'
-  dealership: {
-    id: string
-    name: string
-  }
-  avatar?: string
-}
+import { User } from '@/types/rbac'
+import { userService } from '@/services/userService'
 
 interface AuthState {
   user: User | null
@@ -34,12 +24,20 @@ const authSlice = createSlice({
       state.loading = action.payload
     },
     loginSuccess: (state, action: PayloadAction<{ user: User; token: string }>) => {
+      console.log('=== DEBUG loginSuccess ===');
+      console.log('User role:', action.payload.user.role);
+      console.log('User email:', action.payload.user.email);
+      
       state.user = action.payload.user
       state.token = action.payload.token
       state.isAuthenticated = true
       state.loading = false
-      localStorage.setItem('token', action.payload.token)
-      localStorage.setItem('user', JSON.stringify(action.payload.user))
+      localStorage.setItem('auth_token', action.payload.token)
+      localStorage.setItem('current_user', JSON.stringify(action.payload.user))
+      
+      // Also set the session in userService
+      userService.setUserSession(action.payload.user, action.payload.token)
+      console.log('Session set in userService');
     },
     loginFailure: (state) => {
       state.loading = false
@@ -48,8 +46,11 @@ const authSlice = createSlice({
       state.user = null
       state.token = null
       state.isAuthenticated = false
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('current_user')
+      
+      // Also clear the session in userService
+      userService.clearSession()
     },
     restoreAuth: (state, action: PayloadAction<{ user: User; token: string }>) => {
       state.user = action.payload.user
@@ -61,4 +62,3 @@ const authSlice = createSlice({
 
 export const { setLoading, loginSuccess, loginFailure, logout, restoreAuth } = authSlice.actions
 export default authSlice.reducer
-

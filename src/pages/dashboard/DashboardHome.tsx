@@ -99,14 +99,33 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-8">
+      {/* Theme Test Section */}
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Theme Test</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          If you can see this text change color when switching themes, the theme system is working!
+        </p>
+        <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-center">
+            <span className="text-gray-800 dark:text-gray-200 text-sm">Test 1</span>
+          </div>
+          <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded text-center">
+            <span className="text-blue-800 dark:text-blue-200 text-sm">Test 2</span>
+          </div>
+          <div className="bg-green-100 dark:bg-green-900 p-2 rounded text-center">
+            <span className="text-green-800 dark:text-green-200 text-sm">Test 3</span>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-primary">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome back to Eagle Vision Edge</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary dark:text-white">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">Welcome back to Eagle Vision Edge</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={loadDashboardData}>
+          <Button variant="secondary" onClick={loadDashboardData} className="w-full sm:w-auto">
             <Activity className="w-4 h-4 mr-2" />
             Refresh
           </Button>
@@ -116,28 +135,37 @@ export default function DashboardHome() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiCards?.map((card, index) => (
-          <DashboardCard
-            key={index}
-            title={card.title}
-            value={card.value}
-            change={card.change}
-            changeType={card.changeType}
-            icon={getIcon(card.icon)}
-            color={card.color}
-          />
+          <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                {getIcon(card.icon)}
+              </div>
+              <span className={`text-2xl font-bold ${
+                card.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {card.value}
+              </span>
+            </div>
+            <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium">{card.title}</h3>
+            <div className={`text-xs mt-1 ${
+              card.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {card.change}
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Sales Chart */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Sales</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Sales</h3>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Bar dataKey="sales" fill="#3b82f6" />
               <Bar dataKey="target" fill="#e5e7eb" />
@@ -146,13 +174,13 @@ export default function DashboardHome() {
         </div>
 
         {/* Inventory Trends */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventory Trends</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Inventory Trends</h3>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart data={inventoryTrends}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Line type="monotone" dataKey="available" stroke="#10b981" strokeWidth={2} />
               <Line type="monotone" dataKey="sold" stroke="#ef4444" strokeWidth={2} />
@@ -163,10 +191,10 @@ export default function DashboardHome() {
       </div>
 
       {/* Quick Actions & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
           <div className="space-y-2">
             <Button variant="secondary" className="w-full justify-start">
               <Plus className="w-4 h-4 mr-2" />

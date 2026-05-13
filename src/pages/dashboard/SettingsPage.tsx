@@ -233,28 +233,35 @@ export default function SettingsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                     <Input
                       value={user?.name || ''}
+                      onChange={(e) => {/* User name is read-only for now */}}
                       placeholder="Enter full name"
+                      readOnly
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                     <Input
                       value={user?.email || ''}
+                      onChange={(e) => {/* Email is read-only for now */}}
                       type="email"
                       placeholder="Enter email address"
+                      readOnly
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                     <Input
                       placeholder="+1 (555) 123-4567"
+                      readOnly
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
                     <Input
                       value={user?.role?.replace('_', ' ').toUpperCase() || ''}
+                      onChange={(e) => {/* Role is read-only for now */}}
                       placeholder="Enter job title"
+                      readOnly
                     />
                   </div>
                 </div>

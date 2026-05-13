@@ -40,7 +40,31 @@ export default function RegisterPage() {
         firstName: formData.firstName,
         lastName: formData.lastName,
       })
-      dispatch(loginSuccess(response))
+      // Transform AuthResponse to match User type requirements
+      const transformedResponse = {
+        user: {
+          ...response.user,
+          permissions: {
+            dashboard: 'full_access' as const,
+            inventory: 'read' as const,
+            crm: 'write' as const,
+            leads: 'write' as const,
+            financing: 'view_only' as const,
+            rentals: 'view_only' as const,
+            analytics: 'view_only' as const,
+            ai_assistant: 'view_only' as const,
+            notifications: 'full_access' as const,
+            reports: 'view_only' as const,
+            settings: 'view_only' as const,
+            user_management: 'view_only' as const,
+            permissions: 'view_only' as const
+          },
+          isActive: true,
+          createdAt: new Date().toISOString()
+        },
+        token: response.token
+      }
+      dispatch(loginSuccess(transformedResponse))
       success('Registration successful!')
       navigate('/dashboard')
     } catch (err: any) {

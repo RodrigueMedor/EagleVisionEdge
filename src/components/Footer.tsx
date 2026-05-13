@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
+import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin, Building2 } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -40,6 +40,37 @@ export default function Footer() {
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5" />
                 <span>Miami, Florida 33101</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Dealership */}
+          <div>
+            <h4 className="font-semibold mb-4">Dealership</h4>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>
+                <Link to="/schedule-demo" className="hover:text-gold transition-smooth">
+                  Schedule Demo
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/dealer-login" 
+                  className="hover:text-gold transition-smooth flex items-center gap-2"
+                >
+                  <Building2 size={14} />
+                  Dealer Access
+                </Link>
+              </li>
+              <li>
+                <Link to="/pricing" className="hover:text-gold transition-smooth">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link to="/support" className="hover:text-gold transition-smooth">
+                  Support
+                </Link>
               </li>
             </ul>
           </div>

@@ -5,22 +5,23 @@ import { useEffect } from 'react'
 import { useAppDispatch } from '@/store/hooks'
 import { restoreAuth } from '@/store/slices/authSlice'
 import AIChatWidget from '@/components/ai/AIChatWidget'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 function AppContent() {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     // Restore auth state from localStorage on app load
-    const token = localStorage.getItem('token')
-    const userStr = localStorage.getItem('user')
+    const token = localStorage.getItem('auth_token')
+    const userStr = localStorage.getItem('current_user')
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr)
         dispatch(restoreAuth({ user, token }))
       } catch (e) {
         // Clear invalid data
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('current_user')
       }
     }
   }, [dispatch])
@@ -36,7 +37,9 @@ function AppContent() {
 function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </Provider>
   )
 }

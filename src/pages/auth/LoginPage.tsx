@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Mail, Lock, AlertCircle } from 'lucide-react'
+import { Mail, Lock, AlertCircle, Building2, Shield } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { authService } from '@/services/authService'
@@ -25,7 +25,31 @@ export default function LoginPage() {
 
     try {
       const response = await authService.login({ email, password })
-      dispatch(loginSuccess(response))
+      // Transform AuthResponse to match User type requirements
+      const transformedResponse = {
+        user: {
+          ...response.user,
+          permissions: {
+            dashboard: 'full_access' as const,
+            inventory: 'read' as const,
+            crm: 'write' as const,
+            leads: 'write' as const,
+            financing: 'view_only' as const,
+            rentals: 'view_only' as const,
+            analytics: 'view_only' as const,
+            ai_assistant: 'view_only' as const,
+            notifications: 'full_access' as const,
+            reports: 'view_only' as const,
+            settings: 'view_only' as const,
+            user_management: 'view_only' as const,
+            permissions: 'view_only' as const
+          },
+          isActive: true,
+          createdAt: new Date().toISOString()
+        },
+        token: response.token
+      }
+      dispatch(loginSuccess(transformedResponse))
       success('Login successful!')
       navigate('/dashboard')
     } catch (err: any) {
@@ -46,10 +70,10 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-6 h-6 text-white" />
+              <Building2 className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-primary mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your dealer dashboard</p>
+            <h1 className="text-3xl font-bold text-primary mb-2">Dealer Portal Access</h1>
+            <p className="text-gray-600">Authorized dealership personnel only</p>
           </div>
 
           {/* Form */}
@@ -117,11 +141,25 @@ export default function LoginPage() {
             <p className="text-blue-800 text-xs">Password: admin123</p>
           </div>
 
-          {/* Sign up link */}
-          <p className="text-center text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-primary hover:text-secondary font-semibold transition-smooth">
-              Sign up
+          {/* Security notice */}
+          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-amber-900 text-sm">Secure Access</h4>
+                <p className="text-amber-700 text-xs mt-1">
+                  This portal is restricted to authorized dealership personnel. 
+                  Unauthorized access attempts are monitored and logged.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Request access link */}
+          <p className="text-center text-gray-600 mt-4">
+            Need dealership access?{' '}
+            <Link to="/schedule-demo" className="text-primary hover:text-secondary font-semibold transition-smooth">
+              Request Consultation
             </Link>
           </p>
         </div>
