@@ -7,7 +7,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Calendar,
   DollarSign,
   TrendingUp,
   Star,
@@ -17,14 +16,13 @@ import {
   Download,
   Eye,
   Edit,
-  Trash2,
   UserPlus,
-  Clock,
   X
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
 import { Lead, CustomerStatus, LeadScore, LeadSource, CRMFilter, CRMSearch } from '@/types/crm'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { showSuccess, showError } from '@/lib/errorHandler'
 
 const LeadManagementPage: React.FC = () => {
   const navigate = useNavigate()
@@ -39,6 +37,36 @@ const LeadManagementPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+  const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', budget: '', source: 'Website' })
+
+  const resetNewLead = () => setNewLead({ firstName: '', lastName: '', email: '', phone: '', budget: '', source: 'Website' })
+
+  const handleSaveLead = async () => {
+    if (!newLead.firstName || !newLead.lastName || !newLead.email) {
+      showError('Please fill in all required fields (First Name, Last Name, Email)')
+      return
+    }
+    try {
+      const result = await crmService.createLead({
+        firstName: newLead.firstName,
+        lastName: newLead.lastName,
+        email: newLead.email,
+        phone: newLead.phone,
+        source: newLead.source as LeadSource,
+        budget: newLead.budget ? parseInt(newLead.budget) : undefined,
+      })
+      if (result.success) {
+        showSuccess(`Lead ${newLead.firstName} ${newLead.lastName} created successfully!`)
+        setShowLeadModal(false)
+        resetNewLead()
+        loadLeads()
+      } else {
+        showError(result.message || 'Failed to create lead')
+      }
+    } catch {
+      showError('An unexpected error occurred')
+    }
+  }
 
   useEffect(() => {
     loadLeads()
@@ -214,7 +242,7 @@ const LeadManagementPage: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => navigate('/dashboard/pipeline')}
+              onClick={() => navigate('/dashboard/crm/pipeline')}
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center space-x-2"
             >
               <TrendingUp size={20} />
@@ -302,7 +330,20 @@ const LeadManagementPage: React.FC = () => {
               <Filter size={20} />
               <span>Filters</span>
             </button>
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button
+              onClick={() => {
+                const header = ['Name','Email','Phone','Status','Score','Source'].join(',')
+                const rows = leads.map(l => [`${l.firstName} ${l.lastName}`,l.email,l.phone,l.status,l.score,l.source].map(v => `"${v}"`).join(','))
+                const csv = [header, ...rows].join('\n')
+                const blob = new Blob([csv], { type: 'text/csv' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url; a.download = `leads-${new Date().toISOString().split('T')[0]}.csv`; a.click()
+                URL.revokeObjectURL(url)
+                showSuccess('Leads exported successfully!')
+              }}
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
               <Download size={20} />
               <span>Export</span>
             </button>
@@ -581,83 +622,176 @@ const LeadManagementPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Lead Detail Modal */}
-      {showLeadModal && selectedLead && (
+      {/* Lead Detail / Add Lead Modal */}
+      {showLeadModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">{selectedLead.customerName}</h2>
-                <button
-                  onClick={() => setShowLeadModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <Mail className="text-gray-400" size={20} />
-                      <span>{selectedLead.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Phone className="text-gray-400" size={20} />
-                      <span>{selectedLead.phone}</span>
-                    </div>
-                    {selectedLead.location && (
-                      <div className="flex items-center space-x-3">
-                        <MapPin className="text-gray-400" size={20} />
-                        <span>{selectedLead.location}</span>
+            {selectedLead ? (
+              <>
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedLead.customerName}</h2>
+                    <button
+                      onClick={() => { setShowLeadModal(false); setSelectedLead(null) }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                          <Mail className="text-gray-400" size={20} />
+                          <span>{selectedLead.email}</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Phone className="text-gray-400" size={20} />
+                          <span>{selectedLead.phone}</span>
+                        </div>
+                        {selectedLead.location && (
+                          <div className="flex items-center space-x-3">
+                            <MapPin className="text-gray-400" size={20} />
+                            <span>{selectedLead.location}</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Lead Details</h3>
+                      <div className="space-y-3">
+                        <div>
+                          <span className="text-sm text-gray-500">Status:</span>
+                          <span className={`ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedLead.status)}`}>
+                            {selectedLead.status}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-500">Lead Score:</span>
+                          <span className={`ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getScoreColor(selectedLead.score)}`}>
+                            {selectedLead.score}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-500">Source:</span>
+                          <span className="ml-2 text-sm">{selectedLead.source}</span>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-500">Budget:</span>
+                          <span className="ml-2 text-sm">${selectedLead.budget?.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-6 flex items-center justify-end space-x-3">
+                    <button
+                      onClick={() => navigate(`/dashboard/crm/customers/${selectedLead.id}`)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      View Full Profile
+                    </button>
+                    <button
+                      onClick={() => { setShowLeadModal(false); setSelectedLead(null) }}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Lead Details</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-sm text-gray-500">Status:</span>
-                      <span className={`ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedLead.status)}`}>
-                        {selectedLead.status}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-500">Lead Score:</span>
-                      <span className={`ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getScoreColor(selectedLead.score)}`}>
-                        {selectedLead.score}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-500">Source:</span>
-                      <span className="ml-2 text-sm">{selectedLead.source}</span>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-500">Budget:</span>
-                      <span className="ml-2 text-sm">${selectedLead.budget?.toLocaleString()}</span>
-                    </div>
+              </>
+            ) : (
+              <>
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-900">Add New Lead</h2>
+                    <button
+                      onClick={() => setShowLeadModal(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X size={24} />
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div className="mt-6 flex items-center justify-end space-x-3">
-                <button
-                  onClick={() => navigate(`/dashboard/crm/customers/${selectedLead.id}`)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  View Full Profile
-                </button>
-                <button
-                  onClick={() => setShowLeadModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">First Name *</label>
+                      <input
+                        value={newLead.firstName}
+                        onChange={(e) => setNewLead(p => ({ ...p, firstName: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Last Name *</label>
+                      <input
+                        value={newLead.lastName}
+                        onChange={(e) => setNewLead(p => ({ ...p, lastName: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Email *</label>
+                      <input
+                        type="email"
+                        value={newLead.email}
+                        onChange={(e) => setNewLead(p => ({ ...p, email: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Phone</label>
+                      <input
+                        type="tel"
+                        value={newLead.phone}
+                        onChange={(e) => setNewLead(p => ({ ...p, phone: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Budget</label>
+                      <input
+                        type="number" placeholder="$"
+                        value={newLead.budget}
+                        onChange={(e) => setNewLead(p => ({ ...p, budget: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Source</label>
+                      <select
+                        value={newLead.source}
+                        onChange={(e) => setNewLead(p => ({ ...p, source: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="Website">Website</option>
+                        <option value="Referral">Referral</option>
+                        <option value="Phone">Phone</option>
+                        <option value="Walk-in">Walk-in</option>
+                        <option value="Social Media">Social Media</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mt-6 flex items-center justify-end space-x-3">
+                    <button
+                      onClick={handleSaveLead}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+                    >
+                      Save Lead
+                    </button>
+                    <button
+                      onClick={() => { setShowLeadModal(false); resetNewLead() }}
+                      className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

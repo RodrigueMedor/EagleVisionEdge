@@ -1,37 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  DollarSign,
   FileText,
   CheckCircle,
   AlertCircle,
   Clock,
-  Upload,
   Download,
   Search,
-  Filter,
   Plus,
   Eye,
   Edit,
-  Trash2,
-  Calendar,
-  TrendingUp,
-  Users,
-  Percent,
   CreditCard,
-  Home,
-  Briefcase,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
   Mail,
   Phone,
-  MessageSquare,
-  User,
   MoreVertical
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
-import { FinancingApplication, FinancingDocument, Customer, FinancingStatus } from '@/types/crm'
+import { FinancingApplication, Customer, FinancingStatus } from '@/types/crm'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 const FinancingWorkflowPage: React.FC = () => {

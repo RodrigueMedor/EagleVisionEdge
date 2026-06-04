@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { vehicles as allVehicles } from '../../data/vehicles';
 import VehicleCard from '../../components/VehicleCard';
 import FilterSidebar from '../../components/FilterSidebar';
-import { FaCar, FaSearch, FaSort, FaTh, FaList, FaHeart, FaExchangeAlt, FaFilter } from 'react-icons/fa';
+import { FaCar, FaSearch, FaSort, FaTh, FaList, FaExchangeAlt } from 'react-icons/fa';
 
 export default function InventoryPage() {
   const [filters, setFilters] = useState<Record<string, any>>({});

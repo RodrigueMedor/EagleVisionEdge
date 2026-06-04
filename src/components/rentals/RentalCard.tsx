@@ -1,6 +1,7 @@
-import { Car, Users, Package, Calendar } from 'lucide-react'
+import { Users, Package } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Button from '@/components/ui/Button'
+import ImageWithFallback from '@/components/ui/ImageWithFallback'
 
 interface RentalCardProps {
   image: string
@@ -34,10 +35,11 @@ export default function RentalCard({
   return (
     <div className={cn('bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow', className)}>
       <div className="relative">
-        <img 
-          src={image} 
+        <ImageWithFallback
+          src={image}
           alt={name}
           className="w-full h-48 object-cover"
+          containerClassName="w-full h-48"
         />
         <div className={cn(
           'absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold',

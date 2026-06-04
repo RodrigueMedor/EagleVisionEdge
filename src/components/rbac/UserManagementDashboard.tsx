@@ -3,24 +3,16 @@ import {
   User, 
   UserRole, 
   CreateUserData, 
-  UpdateUserData,
-  ROLE_DISPLAY 
+  UpdateUserData 
 } from '@/types/rbac';
 import { 
   Users, 
-  Plus, 
   Edit, 
   Trash2, 
   Search, 
-  Filter, 
-  Shield, 
   Eye, 
   EyeOff, 
-  UserPlus, 
-  Settings, 
-  Mail, 
-  Phone,
-  Building2 
+  UserPlus 
 } from 'lucide-react';
 import { roleService } from '@/services/roleService';
 import { userService } from '@/services/userService';

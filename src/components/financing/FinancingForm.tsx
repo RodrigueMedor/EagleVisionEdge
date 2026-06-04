@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Car, DollarSign, CreditCard, User, Mail, Phone, Briefcase, MessageSquare, AlertCircle } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { useFinancingForm } from '@/hooks/useFinancing'

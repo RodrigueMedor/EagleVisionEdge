@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 interface ResponsiveGridProps {
   children: ReactNode
@@ -13,8 +14,8 @@ interface ResponsiveGridProps {
   className?: string
 }
 
-export function ResponsiveGrid({ 
-  children, 
+export function ResponsiveGrid({
+  children,
   cols = { xs: 1, sm: 2, md: 3, lg: 4, xl: 4 },
   gap = 6,
   className = ''
@@ -40,20 +41,15 @@ interface ResponsiveCardProps {
 }
 
 export function ResponsiveCard({ children, className = '', hover = true }: ResponsiveCardProps) {
-  const cardClasses = [
-    'bg-white',
-    'rounded-lg',
-    'border',
-    'border-gray-200',
-    'shadow-sm',
-    'overflow-hidden',
-    hover && 'hover:shadow-md',
-    'transition-shadow',
-    'duration-200',
-    className
-  ].filter(Boolean).join(' ')
-
-  return <div className={cardClasses}>{children}</div>
+  return (
+    <div className={cn(
+      'bg-white rounded-2xl border border-gray-100 shadow-soft overflow-hidden',
+      hover && 'hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300',
+      className
+    )}>
+      {children}
+    </div>
+  )
 }
 
 interface ResponsiveTableProps {
@@ -63,8 +59,8 @@ interface ResponsiveTableProps {
 
 export function ResponsiveTable({ children, className = '' }: ResponsiveTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <table className={`min-w-full divide-y divide-gray-200 ${className}`}>
+    <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-soft">
+      <table className={`min-w-full divide-y divide-gray-100 ${className}`}>
         {children}
       </table>
     </div>
@@ -91,7 +87,7 @@ interface ResponsiveTableBodyProps {
 
 export function ResponsiveTableBody({ children, className = '' }: ResponsiveTableBodyProps) {
   return (
-    <tbody className={`bg-white divide-y divide-gray-200 ${className}`}>
+    <tbody className={`bg-white divide-y divide-gray-100 ${className}`}>
       {children}
     </tbody>
   )
@@ -104,14 +100,15 @@ interface ResponsiveTableRowProps {
 }
 
 export function ResponsiveTableRow({ children, className = '', hover = true }: ResponsiveTableRowProps) {
-  const rowClasses = [
-    hover && 'hover:bg-gray-50',
-    'transition-colors',
-    'duration-150',
-    className
-  ].filter(Boolean).join(' ')
-
-  return <tr className={rowClasses}>{children}</tr>
+  return (
+    <tr className={cn(
+      hover && 'hover:bg-gray-50/50',
+      'transition-colors duration-150',
+      className
+    )}>
+      {children}
+    </tr>
+  )
 }
 
 interface ResponsiveTableCellProps {
@@ -121,17 +118,15 @@ interface ResponsiveTableCellProps {
 }
 
 export function ResponsiveTableCell({ children, className = '', nowrap = false }: ResponsiveTableCellProps) {
-  const cellClasses = [
-    'px-6',
-    'py-4',
-    'whitespace-nowrap',
-    'text-sm',
-    'text-gray-900',
-    !nowrap && 'whitespace-normal',
-    className
-  ].filter(Boolean).join(' ')
-
-  return <td className={cellClasses}>{children}</td>
+  return (
+    <td className={cn(
+      'px-6 py-4 text-sm text-gray-900',
+      !nowrap && 'whitespace-normal',
+      className
+    )}>
+      {children}
+    </td>
+  )
 }
 
 interface ResponsiveTableHeaderCellProps {
@@ -141,7 +136,7 @@ interface ResponsiveTableHeaderCellProps {
 
 export function ResponsiveTableHeaderCell({ children, className = '' }: ResponsiveTableHeaderCellProps) {
   return (
-    <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}>
+    <th className={`px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 ${className}`}>
       {children}
     </th>
   )

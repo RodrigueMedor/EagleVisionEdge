@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Phone, Mail, Calendar, MapPin, DollarSign, Car, Fuel, Settings, Palette, Shield, Star, Share2 } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
+import ImageWithFallback from '@/components/ui/ImageWithFallback'
 import { inventoryService } from '@/services/inventoryService'
 import { mockVehicles } from '@/data/mockVehicles'
+import { useNotification } from '@/hooks'
 import { Vehicle } from '@/types/vehicle'
 
 export default function VehicleDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { error: showError } = useNotification()
   const [vehicle, setVehicle] = useState<Vehicle | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -26,6 +30,7 @@ export default function VehicleDetailPage() {
       setVehicle(data)
     } catch (err) {
       console.error('Failed to load vehicle', err)
+      showError('Failed to load vehicle details. Showing sample data.')
       const fallbackVehicle = mockVehicles.find(v => v.id === id)
       if (fallbackVehicle) {
         setVehicle(fallbackVehicle)
@@ -73,7 +78,7 @@ export default function VehicleDetailPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4">
             <Button 
               variant="secondary" 
@@ -93,7 +98,7 @@ export default function VehicleDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -101,22 +106,15 @@ export default function VehicleDetailPage() {
             <Card>
               <h2 className="text-xl font-bold text-primary mb-4">Photos</h2>
               <div className="space-y-4">
-                {/* Main Image */}
                 <div className="h-96 bg-gray-200 rounded-lg overflow-hidden">
-                  {vehicle.images && vehicle.images.length > 0 ? (
-                    <img
-                      src={vehicle.images[selectedImageIndex]}
-                      alt={`${vehicle.make} ${vehicle.model} - Image ${selectedImageIndex + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Car className="w-16 h-16 text-gray-400" />
-                    </div>
-                  )}
+                  <ImageWithFallback
+                    src={vehicle.images?.[selectedImageIndex] || ''}
+                    alt={`${vehicle.make} ${vehicle.model} - Image ${selectedImageIndex + 1}`}
+                    className="w-full h-full object-cover"
+                    containerClassName="w-full h-full"
+                  />
                 </div>
 
-                {/* Thumbnail Gallery */}
                 {vehicle.images && vehicle.images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
                     {vehicle.images.map((image, index) => (
@@ -128,11 +126,13 @@ export default function VehicleDetailPage() {
                             ? 'border-blue-500' 
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
+                        aria-label={`View image ${index + 1}`}
                       >
-                        <img
-                          src={image}
-                          alt={`Thumbnail ${index + 1}`}
+                        <ImageWithFallback
+                          src={image || ''}
+                          alt={`${vehicle.make} ${vehicle.model} thumbnail ${index + 1}`}
                           className="w-full h-full object-cover"
+                          containerClassName="w-full h-full"
                         />
                       </button>
                     ))}
@@ -272,7 +272,7 @@ export default function VehicleDetailPage() {
                   variant="secondary" 
                   size="lg"
                   className="w-full"
-                  onClick={() => window.location.href = `/contact?vehicle=${vehicle.id}`}
+                  onClick={() => navigate(`/contact?vehicle=${vehicle.id}`)}
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   Make an Inquiry
@@ -282,7 +282,7 @@ export default function VehicleDetailPage() {
                   variant="secondary" 
                   size="lg"
                   className="w-full"
-                  onClick={() => window.location.href = '/financing'}
+                  onClick={() => navigate('/financing')}
                 >
                   <DollarSign className="w-4 h-4 mr-2" />
                   Check Financing
@@ -409,7 +409,7 @@ export default function VehicleDetailPage() {
               variant="primary" 
               size="lg"
               className="w-full"
-              onClick={() => window.location.href = `/contact?vehicle=${vehicle.id}`}
+              onClick={() => navigate(`/contact?vehicle=${vehicle.id}`)}
             >
               Schedule Test Drive
             </Button>

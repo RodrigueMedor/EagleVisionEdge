@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FaCar, FaDollarSign, FaPercent, FaClock, FaCheckCircle, FaCalculator, FaShieldAlt, FaUser, FaEnvelope, FaPhone, FaFileAlt, FaChartLine, FaHandshake, FaStar, FaQuestionCircle } from 'react-icons/fa';
+import { FaCar, FaDollarSign, FaClock, FaCheckCircle, FaCalculator, FaShieldAlt, FaPhone, FaFileAlt, FaChartLine, FaHandshake, FaStar, FaQuestionCircle } from 'react-icons/fa';
 
 export default function FinancingPage() {
   const [loanAmount, setLoanAmount] = useState(25000);

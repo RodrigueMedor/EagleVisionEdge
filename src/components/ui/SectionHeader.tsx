@@ -9,28 +9,20 @@ interface SectionHeaderProps {
 }
 
 export default function SectionHeader({
-  title,
-  subtitle,
-  description,
-  className,
-  centered = true
+  title, subtitle, description, className, centered = true
 }: SectionHeaderProps) {
   return (
-    <div className={cn(
-      'mb-12',
-      centered && 'text-center',
-      className
-    )}>
+    <div className={cn('mb-12 lg:mb-14', centered && 'text-center', className)}>
       {subtitle && (
-        <h3 className="text-accent font-semibold text-lg mb-2">
+        <span className="text-accent text-sm font-semibold tracking-wider uppercase mb-2 block">
           {subtitle}
-        </h3>
+        </span>
       )}
-      <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-3">
         {title}
       </h2>
       {description && (
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed">
           {description}
         </p>
       )}

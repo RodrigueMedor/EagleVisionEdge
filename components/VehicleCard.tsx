@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { Vehicle } from '../types/vehicle';
-import { FaCar, FaDollarSign, FaTachometerAlt, FaStar, FaHeart, FaShare, FaPhone, FaImage, FaExpand } from 'react-icons/fa';
+import { FaCar, FaTachometerAlt, FaHeart, FaShare, FaPhone, FaImage } from 'react-icons/fa';
 
 export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -129,7 +129,7 @@ export default function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
         {/* Action Buttons */}
         <div className="flex gap-3">
           <Link
-            href={`/vehicle/${vehicle.id}`}
+            to={`/vehicle/${vehicle.id}`}
             className="flex-1 bg-primary hover:bg-secondary text-white px-4 py-3 rounded-xl font-semibold transition-colors text-center"
           >
             View Details

@@ -3,28 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import {
   Car,
   Calendar,
-  Clock,
   CheckCircle,
-  AlertCircle,
   Search,
-  Filter,
   Plus,
   Eye,
   Edit,
-  Trash2,
   MapPin,
   CreditCard,
-  FileText,
-  User,
   DollarSign,
-  TrendingUp,
-  Users,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
   Phone,
   Mail,
-  MessageSquare,
   MoreVertical
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'

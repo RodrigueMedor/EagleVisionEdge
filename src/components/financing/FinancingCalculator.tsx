@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Calculator, DollarSign, AlertCircle } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { usePaymentCalculator } from '@/hooks/useFinancing'

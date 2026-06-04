@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FaCar, FaTruck, FaUsers, FaClock, FaShieldAlt, FaDollarSign, FaCheckCircle, FaStar, FaPhone, FaEnvelope, FaMapMarkerAlt, FaRoad, FaGasPump, FaTools, FaHeadset, FaCalendarAlt, FaArrowRight, FaQuestionCircle } from 'react-icons/fa';
+import { FaCar, FaTruck, FaUsers, FaShieldAlt, FaDollarSign, FaCheckCircle, FaStar, FaPhone, FaRoad, FaGasPump, FaTools, FaHeadset, FaCalendarAlt, FaQuestionCircle } from 'react-icons/fa';
 import RentalModal from '../../components/RentalModal';
 
 export default function RentalsPage() {

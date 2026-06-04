@@ -43,10 +43,9 @@ export function SearchFilterBar({
 
   return (
     <div className={clsx('space-y-4', className)}>
-      {/* Search Bar */}
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             type="text"
             placeholder={placeholder}
@@ -59,12 +58,12 @@ export function SearchFilterBar({
           <Button
             variant="secondary"
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className={clsx('flex items-center gap-2', hasActiveFilters && 'bg-blue-50 text-blue-700 border-blue-200')}
+            className={clsx('flex items-center gap-2 rounded-xl', hasActiveFilters && 'bg-accent/5 text-accent border-accent/20')}
           >
             <Filter className="w-4 h-4" />
             Filters
             {hasActiveFilters && (
-              <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-accent text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {Object.values(filters).filter(v => v && v !== '').length}
               </span>
             )}
@@ -72,24 +71,17 @@ export function SearchFilterBar({
         )}
       </div>
 
-      {/* Advanced Filters */}
       {showFilters && showAdvancedFilters && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+        <div className="bg-gray-50 rounded-2xl border border-gray-100 p-5 space-y-4 animate-slideDown">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-gray-700">Advanced Filters</h3>
+            <h3 className="font-semibold text-gray-900 text-sm">Advanced Filters</h3>
             {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="text-gray-500 hover:text-gray-700"
-              >
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500 hover:text-accent">
                 <X className="w-4 h-4 mr-1" />
                 Clear All
               </Button>
             )}
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Select
               placeholder="Select Status"
@@ -100,10 +92,9 @@ export function SearchFilterBar({
                 { value: 'sold', label: 'Sold' },
                 { value: 'pending', label: 'Pending' },
                 { value: 'active', label: 'Active' },
-                { value: 'inactive', label: 'Inactive' }
+                { value: 'inactive', label: 'Inactive' },
               ]}
             />
-            
             <Select
               placeholder="Date Range"
               value={filters.dateRange || ''}
@@ -113,10 +104,9 @@ export function SearchFilterBar({
                 { value: 'week', label: 'This Week' },
                 { value: 'month', label: 'This Month' },
                 { value: 'quarter', label: 'This Quarter' },
-                { value: 'year', label: 'This Year' }
+                { value: 'year', label: 'This Year' },
               ]}
             />
-            
             <Select
               placeholder="Sort By"
               value={filters.sortBy || ''}
@@ -127,7 +117,7 @@ export function SearchFilterBar({
                 { value: 'name-asc', label: 'Name (A-Z)' },
                 { value: 'name-desc', label: 'Name (Z-A)' },
                 { value: 'price-desc', label: 'Price (High-Low)' },
-                { value: 'price-asc', label: 'Price (Low-High)' }
+                { value: 'price-asc', label: 'Price (Low-High)' },
               ]}
             />
           </div>

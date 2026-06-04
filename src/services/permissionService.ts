@@ -1,4 +1,4 @@
-import { UserRole, UserPermissions, Module, Permission, PermissionMatrix, ModuleAccess, ROLE_DISPLAY, ROLE_HIERARCHY } from '@/types/rbac'
+import { UserRole, UserPermissions, Module, Permission, PermissionMatrix, ModuleAccess, ROLE_HIERARCHY } from '@/types/rbac'
 
 // Permission Matrix - Defines what each role can do in each module
 export const PERMISSION_MATRIX: PermissionMatrix = {

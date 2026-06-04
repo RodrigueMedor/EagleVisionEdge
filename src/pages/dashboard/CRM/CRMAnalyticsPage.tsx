@@ -2,29 +2,24 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3,
-  TrendingUp,
   Users,
   DollarSign,
   Phone,
-  Calendar,
   Clock,
   Star,
   Target,
   Activity,
   PieChart,
   LineChart,
-  Filter,
   Download,
   RefreshCw,
-  ChevronLeft,
-  ChevronRight,
   ArrowUp,
   ArrowDown,
   Minus,
   Car
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
-import { CRMDashboardData, CRMMetrics } from '@/types/crm'
+import { CRMDashboardData } from '@/types/crm'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 const CRMAnalyticsPage: React.FC = () => {

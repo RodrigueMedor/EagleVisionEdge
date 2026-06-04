@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { userService } from '@/services/userService';
 import { UserRole } from '@/types/rbac';
 
@@ -14,6 +14,7 @@ export default function RoleGuard({
   allowedRoles, 
   fallbackPath = '/dashboard' 
 }: RoleGuardProps) {
+  const navigate = useNavigate();
   const [isChecking, setIsChecking] = React.useState(true);
   const [hasAccess, setHasAccess] = React.useState(false);
   const [currentRole, setCurrentRole] = React.useState<UserRole | null>(null);
@@ -96,7 +97,7 @@ export default function RoleGuard({
               </button>
               
               <button
-                onClick={() => window.location.href = fallbackPath}
+                onClick={() => navigate(fallbackPath)}
                 className="w-full bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Go to Dashboard

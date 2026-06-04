@@ -4,8 +4,6 @@ import {
   MaintenanceSchedule,
   PredictiveModel,
   MaintenanceAnalytics,
-  MaintenancePart,
-  MaintenanceHistory,
   ServiceRecommendation,
   IoTDevice
 } from '@/types/predictiveMaintenance'

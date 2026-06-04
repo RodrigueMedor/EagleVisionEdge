@@ -16,7 +16,6 @@ import {
   Package, 
   DollarSign,
   Calendar,
-  MapPin,
   Clock,
   Shield,
   TrendingUp
@@ -99,7 +98,7 @@ export default function RentalsPage() {
 
   const featuredVehicles = [
     {
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&h=400&fit=crop',
       name: 'Toyota Camry',
       type: 'Sedan - Perfect for Uber',
       price: '$35',
@@ -107,7 +106,7 @@ export default function RentalsPage() {
       available: true
     },
     {
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1583267746897-2cf415887172?w=600&h=400&fit=crop',
       name: 'Ford Transit',
       type: 'Cargo Van - Business Ready',
       price: '$75',
@@ -115,7 +114,7 @@ export default function RentalsPage() {
       available: true
     },
     {
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&h=400&fit=crop',
       name: 'Chevrolet Malibu',
       type: 'Sedan - Daily Rental',
       price: '$45',
@@ -123,7 +122,7 @@ export default function RentalsPage() {
       available: false
     },
     {
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&h=400&fit=crop',
       name: 'Nissan Sentra',
       type: 'Compact - Economy',
       price: '$28',
@@ -131,7 +130,7 @@ export default function RentalsPage() {
       available: true
     },
     {
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&h=400&fit=crop',
       name: 'Ram ProMaster',
       type: 'Cargo Van - Large',
       price: '$95',
@@ -139,7 +138,7 @@ export default function RentalsPage() {
       available: true
     },
     {
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&h=400&fit=crop',
       name: 'Honda Accord',
       type: 'Sedan - Premium',
       price: '$55',
@@ -158,6 +157,7 @@ export default function RentalsPage() {
         title="Reliable Vehicle Rental Solutions"
         subtitle="Uber & Cargo Van Rentals Available"
         description="Professional vehicle rentals for personal, business, and rideshare needs. Flexible terms, competitive rates, and quality vehicles ready when you are."
+        image="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1920&h=800&fit=crop"
       >
         <Button 
           variant="secondary" 

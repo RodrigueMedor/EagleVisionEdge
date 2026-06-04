@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, Eye, Edit, Phone, Mail, Calendar, User, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Plus, Eye, Edit, Phone, Mail, Calendar, Users } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
 import { Pagination } from '@/components/ui/Pagination'
@@ -21,6 +21,7 @@ const leadStatuses = [
 ]
 
 export default function LeadsPage() {
+  const navigate = useNavigate()
   const [leads, setLeads] = useState<Lead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
@@ -167,7 +168,7 @@ export default function LeadsPage() {
           <h1 className="text-4xl font-bold text-primary">Leads Management</h1>
           <p className="text-gray-600 mt-2">Manage and track your sales leads</p>
         </div>
-        <Button variant="primary" size="md">
+        <Button variant="primary" size="md" onClick={() => navigate('/dashboard/crm/leads')}>
           <Plus className="w-4 h-4 mr-2" />
           Add Lead
         </Button>
@@ -248,7 +249,7 @@ export default function LeadsPage() {
               Clear Filters
             </Button>
           ) : (
-            <Button variant="primary">
+            <Button variant="primary" onClick={() => navigate('/dashboard/crm/leads')}>
               <Plus className="w-4 h-4 mr-2" />
               Add Your First Lead
             </Button>
@@ -352,7 +353,7 @@ export default function LeadsPage() {
                             <Eye className="w-4 h-4" />
                           </Button>
                         </Link>
-                        <Link to={`/dashboard/leads/${lead.id}/edit`}>
+                        <Link to={`/dashboard/leads/${lead.id}`}>
                           <Button variant="ghost" size="sm">
                             <Edit className="w-4 h-4" />
                           </Button>

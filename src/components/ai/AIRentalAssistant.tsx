@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Car, Calendar, MapPin, DollarSign, Clock, Users, CheckCircle, AlertCircle, Info, Loader2 } from 'lucide-react'
-import { aiService } from '@/services/aiService'
+import { useState } from 'react'
+import { Car, Calendar, MapPin, CheckCircle, Info, Loader2 } from 'lucide-react'
 import { AIRecommendation } from '@/types/ai'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'

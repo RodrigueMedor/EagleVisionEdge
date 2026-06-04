@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import { useToast } from '@/hooks/useFinancing'
-import { User, Mail, Phone, Calendar, MapPin, AlertCircle, Car } from 'lucide-react'
+import { Mail, Phone, Calendar, MapPin, AlertCircle, Car } from 'lucide-react'
 
 interface RentalReservationModalProps {
   isOpen: boolean

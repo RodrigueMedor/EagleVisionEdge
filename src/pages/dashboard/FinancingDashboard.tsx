@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, Eye, Edit, DollarSign, Users, Clock, TrendingUp, Activity, FileText, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Plus, Eye, Edit, DollarSign, Clock, TrendingUp, Activity, FileText, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
 import { Pagination } from '@/components/ui/Pagination'
@@ -372,7 +372,7 @@ export default function FinancingDashboard() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge 
                         status={application.status || ''} 
-                        variant={(application.status || '') as any}
+                        variant={(application.status === 'pending' ? 'warning' : application.status === 'approved' ? 'success' : application.status === 'rejected' ? 'error' : 'info') as any}
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

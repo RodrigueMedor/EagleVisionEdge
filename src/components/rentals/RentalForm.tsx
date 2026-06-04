@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Car, User, Mail, Phone, Calendar, MapPin } from 'lucide-react'
+import { Car, User, Mail, Phone, Calendar } from 'lucide-react'
 import Button from '@/components/ui/Button'
 
 interface FormData {

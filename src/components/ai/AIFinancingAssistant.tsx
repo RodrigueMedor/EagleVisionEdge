@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { DollarSign, Calculator, TrendingUp, CreditCard, AlertCircle, CheckCircle, Info, Loader2 } from 'lucide-react'
+import { DollarSign, Calculator, CreditCard, Info, Loader2 } from 'lucide-react'
 import { aiService } from '@/services/aiService'
 import { AIRecommendation } from '@/types/ai'
 import { Card } from '@/components/ui/Card'

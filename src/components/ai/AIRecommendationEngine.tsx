@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Car, TrendingUp, Star, ThumbsUp, ThumbsDown, RefreshCw, Filter, DollarSign, Calendar } from 'lucide-react'
+import { Car, Star, ThumbsUp, ThumbsDown, RefreshCw, DollarSign, Calendar } from 'lucide-react'
 import { aiService } from '@/services/aiService'
 import { AIRecommendation } from '@/types/ai'
 import { Card } from '@/components/ui/Card'

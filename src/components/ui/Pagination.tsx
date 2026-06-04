@@ -1,5 +1,4 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import Button from './Button'
 import { clsx } from 'clsx'
 
 interface PaginationProps {
@@ -17,115 +16,93 @@ export function Pagination({
   onPageChange,
   className,
   showPageNumbers = true,
-  maxVisiblePages = 5
+  maxVisiblePages = 5,
 }: PaginationProps) {
   if (totalPages <= 1) return null
 
   const getVisiblePages = () => {
     const pages = []
     const halfVisible = Math.floor(maxVisiblePages / 2)
-    
     let start = Math.max(1, currentPage - halfVisible)
-    let end = Math.min(totalPages, start + maxVisiblePages - 1)
-    
+    const end = Math.min(totalPages, start + maxVisiblePages - 1)
     if (end - start + 1 < maxVisiblePages) {
       start = Math.max(1, end - maxVisiblePages + 1)
     }
-    
     for (let i = start; i <= end; i++) {
       pages.push(i)
     }
-    
     return pages
   }
 
   const visiblePages = getVisiblePages()
 
   return (
-    <div className={clsx('flex items-center justify-between', className)}>
-      <div className="text-sm text-gray-700">
-        Showing page {currentPage} of {totalPages}
+    <div className={clsx('flex flex-col sm:flex-row items-center justify-between gap-4', className)}>
+      <div className="text-sm text-gray-500">
+        Page {currentPage} of {totalPages}
       </div>
-      
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="ghost"
-          size="sm"
+
+      <div className="flex items-center gap-2">
+        <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronLeft className="w-4 h-4" />
           Previous
-        </Button>
-        
+        </button>
+
         {showPageNumbers && (
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center gap-1">
             {visiblePages[0] > 1 && (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={() => onPageChange(1)}
-                  className={clsx(
-                    'w-8 h-8 p-0',
-                    currentPage === 1 && 'bg-blue-50 text-blue-700 border-blue-200'
-                  )}
+                  className="w-9 h-9 rounded-xl text-sm font-medium text-gray-600 hover:text-primary hover:bg-gray-50 border border-gray-200 transition-all"
                 >
                   1
-                </Button>
-                {visiblePages[0] > 2 && (
-                  <span className="px-2 text-gray-500">...</span>
-                )}
+                </button>
+                {visiblePages[0] > 2 && <span className="px-1 text-gray-400 text-sm">...</span>}
               </>
             )}
-            
             {visiblePages.map(page => (
-              <Button
+              <button
                 key={page}
-                variant="ghost"
-                size="sm"
                 onClick={() => onPageChange(page)}
                 className={clsx(
-                  'w-8 h-8 p-0',
-                  currentPage === page && 'bg-blue-50 text-blue-700 border-blue-200'
+                  'w-9 h-9 rounded-xl text-sm font-medium transition-all',
+                  currentPage === page
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-gray-600 hover:text-primary hover:bg-gray-50 border border-gray-200'
                 )}
               >
                 {page}
-              </Button>
+              </button>
             ))}
-            
             {visiblePages[visiblePages.length - 1] < totalPages && (
               <>
                 {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-                  <span className="px-2 text-gray-500">...</span>
+                  <span className="px-1 text-gray-400 text-sm">...</span>
                 )}
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={() => onPageChange(totalPages)}
-                  className={clsx(
-                    'w-8 h-8 p-0',
-                    currentPage === totalPages && 'bg-blue-50 text-blue-700 border-blue-200'
-                  )}
+                  className="w-9 h-9 rounded-xl text-sm font-medium text-gray-600 hover:text-primary hover:bg-gray-50 border border-gray-200 transition-all"
                 >
                   {totalPages}
-                </Button>
+                </button>
               </>
             )}
           </div>
         )}
-        
-        <Button
-          variant="ghost"
-          size="sm"
+
+        <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Next
           <ChevronRight className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
     </div>
   )

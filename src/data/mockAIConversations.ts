@@ -1,5 +1,5 @@
 // Mock AI Conversation Scenarios and Data
-import { AIMessage, AIConversation, AIRecommendation, AIQuickAction } from '@/types/ai'
+import { AIConversation, AIRecommendation, AIQuickAction } from '@/types/ai'
 
 // Mock Quick Actions
 export const mockQuickActions: AIQuickAction[] = [

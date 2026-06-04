@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Phone, Mail, MapPin, Clock, Car, User, MessageSquare } from 'lucide-react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import { Phone, Mail, MapPin, Clock, Car, MessageSquare } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import { inventoryService } from '@/services/inventoryService'
+import { contentService } from '@/services/contentService'
+import { useNotification } from '@/hooks'
 import { mockVehicles } from '@/data/mockVehicles'
 import { Vehicle } from '@/types/vehicle'
+import { SiteContent } from '@/types/content'
 
 const contactReasons = [
   'General Inquiry',
@@ -27,9 +30,15 @@ const contactMethods = [
 ]
 
 export default function ContactPage() {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [, setLoading] = useState(true)
+  const [content, setContent] = useState<SiteContent | null>(null)
+  const { error: showError } = useNotification()
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => { contentService.getContent().then(setContent) }, [])
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -54,6 +63,7 @@ export default function ContactPage() {
       setVehicles(availableVehicles)
     } catch (err) {
       console.error('Failed to load vehicles', err)
+      showError('Failed to load vehicle list. Showing sample data.')
       const availableVehicles = mockVehicles.filter(v => v.status === 'available')
       setVehicles(availableVehicles)
     } finally {
@@ -61,18 +71,43 @@ export default function ContactPage() {
     }
   }
 
+  const validate = () => {
+    const errs: Record<string, string> = {}
+    if (!formData.firstName.trim()) errs.firstName = 'First name is required'
+    if (!formData.lastName.trim()) errs.lastName = 'Last name is required'
+    if (!formData.email.trim()) {
+      errs.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errs.email = 'Please enter a valid email address'
+    }
+    if (formData.phone && !/^[\d\s\-().+]{7,}$/.test(formData.phone)) {
+      errs.phone = 'Please enter a valid phone number'
+    }
+    if (!formData.message.trim()) errs.message = 'Message is required'
+    return errs
+  }
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const errs = validate()
+    setErrors(errs)
+    if (Object.keys(errs).length > 0) return
+
     setSubmitting(true)
 
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
       setSubmitted(true)
       setFormData({
         firstName: '',
@@ -86,6 +121,7 @@ export default function ContactPage() {
       })
     } catch (err) {
       console.error('Failed to submit form', err)
+      showError('Failed to send your message. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -96,7 +132,7 @@ export default function ContactPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <Card className="max-w-2xl mx-auto text-center p-8">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <MessageSquare className="w-8 h-8 text-green-600" />
@@ -108,7 +144,7 @@ export default function ContactPage() {
             <Button 
               variant="primary" 
               size="lg"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
             >
               Return to Home
             </Button>
@@ -122,17 +158,17 @@ export default function ContactPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-primary mb-4">Contact Us</h1>
+            <h1 className="text-4xl font-bold text-primary mb-4">{content?.contact?.hero?.title || 'Contact Us'}</h1>
             <p className="text-gray-600 text-lg">
-              Get in touch with our team for any questions or to schedule a visit
+              {content?.contact?.hero?.subtitle || 'Get in touch with our team for any questions or to schedule a visit'}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div>
@@ -156,50 +192,50 @@ export default function ContactPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                    <Input
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      placeholder="John"
-                      required
-                    />
-                  </div>
+                  <Input
+                    id="firstName"
+                    label="First Name"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    placeholder="John"
+                    required
+                    error={errors.firstName}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                    <Input
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      placeholder="Doe"
-                      required
-                    />
-                  </div>
+                  <Input
+                    id="lastName"
+                    label="Last Name"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    placeholder="Doe"
+                    required
+                    error={errors.lastName}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="john.doe@example.com"
-                      required
-                    />
-                  </div>
+                  <Input
+                    id="email"
+                    label="Email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="john.doe@example.com"
+                    required
+                    error={errors.email}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <Input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="(555) 123-4567"
-                    />
-                  </div>
+                  <Input
+                    id="phone"
+                    label="Phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="(555) 123-4567"
+                    error={errors.phone}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,14 +265,16 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
                   <textarea
+                    id="message"
                     value={formData.message}
                     onChange={(e) => handleInputChange('message', e.target.value)}
                     placeholder="Tell us how we can help you..."
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full px-3 py-2 border rounded-xl transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none placeholder:text-gray-400 ${errors.message ? 'border-accent' : 'border-gray-200 hover:border-gray-300'}`}
                   />
+                  {errors.message && <p className="text-accent text-sm mt-1.5">{errors.message}</p>}
                 </div>
 
                 <Button 
@@ -261,9 +299,9 @@ export default function ContactPage() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-blue-600 mt-1" />
                   <div>
-                    <p className="font-medium">Eagle Vision Edge Dealership</p>
-                    <p className="text-gray-600">123 Main Street</p>
-                    <p className="text-gray-600">City, State 12345</p>
+                    <p className="font-medium">{content?.global?.dealershipName || 'Eagle Vision Edge'} Dealership</p>
+                    <p className="text-gray-600">{content?.global?.address?.street || '123 Main Street'}</p>
+                    <p className="text-gray-600">{content ? `${content.global.address.city}, ${content.global.address.state} ${content.global.address.zip}` : 'City, State 12345'}</p>
                   </div>
                 </div>
 
@@ -271,9 +309,9 @@ export default function ContactPage() {
                   <Clock className="w-5 h-5 text-blue-600 mt-1" />
                   <div>
                     <p className="font-medium">Business Hours</p>
-                    <p className="text-gray-600">Monday - Friday: 9:00 AM - 7:00 PM</p>
-                    <p className="text-gray-600">Saturday: 9:00 AM - 5:00 PM</p>
-                    <p className="text-gray-600">Sunday: Closed</p>
+                    <p className="text-gray-600">{content?.global?.businessHours?.weekday || 'Monday - Friday: 9:00 AM - 7:00 PM'}</p>
+                    <p className="text-gray-600">{content?.global?.businessHours?.saturday || 'Saturday: 9:00 AM - 5:00 PM'}</p>
+                    <p className="text-gray-600">{content?.global?.businessHours?.sunday || 'Sunday: Closed'}</p>
                   </div>
                 </div>
               </div>
@@ -283,30 +321,25 @@ export default function ContactPage() {
             <Card>
               <h3 className="text-xl font-bold text-primary mb-4">Get in Touch</h3>
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Phone className="w-5 h-5 text-green-600 mt-1" />
-                  <div>
-                    <p className="font-medium">Sales Department</p>
-                    <p className="text-gray-600">(555) 123-4567</p>
-                    <p className="text-sm text-gray-500">Available Monday - Saturday</p>
+                {(content?.contact?.departments || [
+                  { name: 'Sales Department', phone: '(305) 555-0100', availability: 'Available Monday - Saturday' },
+                  { name: 'Service Department', phone: '(305) 555-0101', availability: 'Available Monday - Friday' },
+                ]).map((dept, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <Phone className={`w-5 h-5 mt-1 ${i === 0 ? 'text-green-600' : 'text-purple-600'}`} />
+                    <div>
+                      <p className="font-medium">{dept.name}</p>
+                      <p className="text-gray-600">{dept.phone}</p>
+                      <p className="text-sm text-gray-500">{dept.availability}</p>
+                    </div>
                   </div>
-                </div>
-
+                ))}
                 <div className="flex items-start gap-3">
                   <Mail className="w-5 h-5 text-blue-600 mt-1" />
                   <div>
                     <p className="font-medium">Email Us</p>
-                    <p className="text-gray-600">info@eaglevisionedge.com</p>
+                    <p className="text-gray-600">{content?.global?.email || 'info@eaglevisionedge.com'}</p>
                     <p className="text-sm text-gray-500">We respond within 24 hours</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <User className="w-5 h-5 text-purple-600 mt-1" />
-                  <div>
-                    <p className="font-medium">Service Department</p>
-                    <p className="text-gray-600">(555) 123-4568</p>
-                    <p className="text-sm text-gray-500">Available Monday - Friday</p>
                   </div>
                 </div>
               </div>
@@ -319,7 +352,7 @@ export default function ContactPage() {
                 <Button 
                   variant="secondary" 
                   className="w-full justify-start"
-                  onClick={() => window.location.href = '/inventory'}
+                  onClick={() => navigate('/inventory')}
                 >
                   <Car className="w-4 h-4 mr-3" />
                   Browse Inventory
@@ -327,14 +360,14 @@ export default function ContactPage() {
                 <Button 
                   variant="secondary" 
                   className="w-full justify-start"
-                  onClick={() => window.location.href = '/financing'}
+                  onClick={() => navigate('/financing')}
                 >
                   Get Pre-Approved
                 </Button>
                 <Button 
                   variant="secondary" 
                   className="w-full justify-start"
-                  onClick={() => window.location.href = '/about'}
+                  onClick={() => navigate('/about')}
                 >
                   About Us
                 </Button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserRole, UserSession } from '@/types/rbac';
+import { UserSession } from '@/types/rbac';
 import { userService } from '@/services/userService';
 import { 
   Bot, 

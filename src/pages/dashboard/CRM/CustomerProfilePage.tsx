@@ -7,20 +7,16 @@ import {
   MapPin, 
   Calendar, 
   DollarSign, 
-  CreditCard, 
-  Car, 
-  MessageSquare,
+  Car,
   Clock,
-  Star,
   TrendingUp,
   FileText,
   Bell,
   Edit,
-  Save,
-  X
+  Save
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
-import { Customer, CustomerNote, FollowUp, AIRecommendation } from '@/types/crm'
+import { Customer, FollowUp, AIRecommendation } from '@/types/crm'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 const CustomerProfilePage: React.FC = () => {

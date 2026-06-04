@@ -7,23 +7,16 @@ import {
   Bot,
   Send,
   Search,
-  Filter,
   Plus,
   Archive,
   Star,
   MoreVertical,
   User,
-  Clock,
   Paperclip,
   Smile,
   PhoneCall,
   Video,
-  Calendar,
-  CheckCircle,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw
+  Calendar
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
 import { CommunicationThread, CommunicationMessage, Customer, CommunicationType } from '@/types/crm'

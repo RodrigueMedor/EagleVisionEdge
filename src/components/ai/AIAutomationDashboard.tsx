@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Bot, Activity, Clock, CheckCircle, AlertCircle, TrendingUp, Users, MessageSquare, Zap, BarChart3, Calendar, Loader2 } from 'lucide-react'
+import { Activity, Clock, CheckCircle, AlertCircle, TrendingUp, Users, MessageSquare, Zap, BarChart3, Loader2 } from 'lucide-react'
 import { aiService } from '@/services/aiService'
 import { AIAnalytics, AIActivity, AIWorkflow } from '@/types/ai'
 import { Card } from '@/components/ui/Card'

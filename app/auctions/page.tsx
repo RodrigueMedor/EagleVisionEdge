@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaCar, FaGavel, FaClock, FaDollarSign, FaUsers, FaEye, FaHistory, FaShieldAlt, FaQuestionCircle, FaTrophy, FaFire, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCar, FaGavel, FaClock, FaDollarSign, FaUsers, FaEye, FaShieldAlt, FaQuestionCircle, FaTrophy, FaFire, FaExclamationTriangle } from 'react-icons/fa';
 
 interface AuctionVehicle {
   id: string;

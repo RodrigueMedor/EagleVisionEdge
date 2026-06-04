@@ -24,27 +24,27 @@ export default function FAQAccordion({ items, className }: FAQAccordionProps) {
       {items.map((item, index) => (
         <div
           key={index}
-          className="border border-gray-200 rounded-lg mb-4 overflow-hidden"
+          className="border border-gray-100 rounded-2xl mb-3 overflow-hidden shadow-soft transition-all duration-200 hover:shadow-md"
         >
           <button
             onClick={() => toggleItem(index)}
-            className="w-full px-6 py-4 text-left bg-white hover:bg-gray-50 transition-colors flex justify-between items-center"
+            className="w-full px-6 py-4 text-left bg-white hover:bg-gray-50/50 transition-colors flex justify-between items-center gap-4"
           >
             <span className="font-semibold text-primary">{item.question}</span>
             <ChevronDown
               className={cn(
-                'w-5 h-5 text-primary transition-transform',
+                'w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0',
                 openIndex === index ? 'rotate-180' : ''
               )}
             />
           </button>
           <div
             className={cn(
-              'bg-gray-50 transition-all duration-300',
-              openIndex === index ? 'max-h-96' : 'max-h-0 overflow-hidden'
+              'transition-all duration-300 ease-in-out',
+              openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
             )}
           >
-            <div className="px-6 py-4 text-gray-600">
+            <div className="px-6 py-4 text-gray-500 border-t border-gray-100 leading-relaxed">
               {item.answer}
             </div>
           </div>

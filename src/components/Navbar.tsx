@@ -1,19 +1,44 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Car, Menu, X, LogOut, Building2, Calendar, Phone } from 'lucide-react'
-import { useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Car, Menu, X, LogOut, Calendar, Phone } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks'
 import { useAppDispatch } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
+import { contentService } from '@/services/contentService'
 import Button from '@/components/ui/Button'
 import ScheduleDemo from './ScheduleDemo'
-import DealerPortal from './DealerPortal'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showScheduleDemo, setShowScheduleDemo] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [siteName, setSiteName] = useState('Eagle Vision Edge')
+  const [siteSubtitle, setSiteSubtitle] = useState('Dealership Operations Platform')
+  const [sitePhone, setSitePhone] = useState('')
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const location = useLocation()
+
+  useEffect(() => {
+    contentService.getContent().then(c => {
+      setSiteName(c.global.dealershipName)
+      setSiteSubtitle(c.global.dealershipSubtitle)
+      setSitePhone(c.global.phone)
+    })
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
+
+  const isActive = (href: string) => location.pathname === href
 
   const handleLogout = () => {
     dispatch(logout())
@@ -25,128 +50,130 @@ export default function Navbar() {
     { label: 'Inventory', href: '/inventory' },
     { label: 'Financing', href: '/financing' },
     { label: 'Rentals', href: '/rentals' },
-    { label: 'About Us', href: '/about' },
+    { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
   ]
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+    <nav
+      className={`sticky top-0 z-30 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/90 backdrop-blur-xl shadow-soft border-b border-gray-100/50'
+          : 'bg-white border-b border-gray-200'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+        <div className="flex justify-between items-center h-16 sm:h-18">
+          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary via-secondary to-primary rounded-xl flex items-center justify-center shadow-soft group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
               <Car className="w-5 h-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg font-bold text-primary group-hover:text-secondary transition-smooth">
-                Eagle Vision Edge
+              <h1 className="text-lg font-bold text-primary group-hover:text-accent transition-colors duration-200">
+                {siteName}
               </h1>
-              <p className="text-xs text-gray-500">Dealership Operations Platform</p>
+              <p className="text-[11px] text-gray-500 leading-tight">{siteSubtitle}</p>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-1">
             {publicLinks.map(link => (
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-gray-700 hover:text-accent font-medium transition-smooth relative group"
+                className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative group ${
+                  isActive(link.href)
+                    ? 'text-accent bg-accent/5'
+                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                }`}
               >
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent transition-all group-hover:w-full"></span>
+                {isActive(link.href) && (
+                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-accent rounded-full" />
+                )}
               </Link>
             ))}
           </div>
 
-          {/* Right side */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
                 <Link to="/dashboard" className="hidden sm:block">
-                  <Button size="sm" variant="secondary">
+                  <Button size="sm" variant="secondary" className="rounded-xl">
                     Dashboard
                   </Button>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-gray-700 hover:text-accent transition-smooth flex items-center gap-1"
+                  className="text-gray-500 hover:text-accent transition-colors p-2 rounded-xl hover:bg-gray-50"
+                  title="Logout"
                 >
                   <LogOut size={18} />
-                  <span className="hidden sm:inline text-sm font-medium">Logout</span>
                 </button>
               </>
             ) : (
               <>
-                {/* Schedule Demo - Primary CTA */}
-                <button 
+                <button
                   onClick={() => setShowScheduleDemo(true)}
-                  className="hidden sm:flex items-center gap-2 bg-accent hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-semibold transition-all transform hover:scale-105"
+                  className="hidden sm:inline-flex items-center gap-2 bg-primary hover:bg-secondary text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:shadow-lg active:scale-[0.97]"
                 >
                   <Calendar size={16} />
                   Schedule Demo
                 </button>
-                
-                {/* Mobile: Phone CTA */}
-                <button className="sm:hidden flex items-center gap-2 bg-primary hover:bg-secondary text-white px-3 py-2 rounded-full text-xs font-semibold">
-                  <Phone size={14} />
-                  (407) 201-3109
-                </button>
+
+                <a href={`tel:${sitePhone.replace(/\D/g, '')}`} className="sm:hidden inline-flex items-center justify-center w-9 h-9 bg-primary hover:bg-secondary text-white rounded-xl transition-colors">
+                  <Phone size={16} />
+                </a>
               </>
             )}
 
-            {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-primary hover:text-accent transition-smooth"
+              className="md:hidden p-2 text-gray-600 hover:text-primary hover:bg-gray-50 rounded-xl transition-all"
+              aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-200 animate-slideDown">
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl animate-slideDown">
+          <div className="px-4 py-3 space-y-1">
             {publicLinks.map(link => (
               <Link
                 key={link.href}
                 to={link.href}
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition-smooth"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  setShowScheduleDemo(false)
-                }}
+                className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  isActive(link.href)
+                    ? 'bg-accent/5 text-accent'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
+                }`}
               >
                 {link.label}
               </Link>
             ))}
-            {!isAuthenticated && (
-              <div className="px-4 py-2 space-y-2">
-                <button 
-                  onClick={() => setShowScheduleDemo(true)}
-                  className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-red-700 text-white px-4 py-3 rounded-full text-sm font-semibold transition-all"
-                >
-                  <Calendar size={16} />
-                  Schedule Demo
-                </button>
-                <button className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-full text-sm font-semibold transition-all">
-                  <Phone size={16} />
-                  (407) 201-3109
-                </button>
-              </div>
-            )}
           </div>
-        )}
-      </div>
-        
-        {/* Modals */}
-        <ScheduleDemo 
-          isOpen={showScheduleDemo} 
-          onClose={() => setShowScheduleDemo(false)} 
-        />
+          {!isAuthenticated && (
+            <div className="px-4 py-3 border-t border-gray-100 space-y-2">
+              <button
+                onClick={() => setShowScheduleDemo(true)}
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98]"
+              >
+                <Calendar size={16} />
+                Schedule Demo
+              </button>
+              <a href={`tel:${sitePhone.replace(/\D/g, '')}`} className="w-full flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-3 rounded-xl text-sm font-semibold transition-all">
+                <Phone size={16} />
+                {sitePhone}
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
+      <ScheduleDemo isOpen={showScheduleDemo} onClose={() => setShowScheduleDemo(false)} />
     </nav>
   )
 }
-

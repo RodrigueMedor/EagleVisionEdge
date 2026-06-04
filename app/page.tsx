@@ -2,7 +2,7 @@ import React from 'react';
 import { vehicles } from '../data/vehicles';
 import VehicleCard from '../components/VehicleCard';
 import CTA from '../components/CTA';
-import { FaCar, FaShieldAlt, FaDollarSign, FaClock, FaStar, FaArrowRight, FaPhone, FaMapMarkerAlt, FaCalendar } from 'react-icons/fa';
+import { FaCar, FaShieldAlt, FaDollarSign, FaClock, FaStar, FaArrowRight, FaPhone, FaCalendar } from 'react-icons/fa';
 
 export default function HomePage() {
   const featured = vehicles.slice(0, 3);

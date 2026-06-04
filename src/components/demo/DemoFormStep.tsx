@@ -3,8 +3,7 @@ import { DemoStep, DemoRequest, DemoTimeSlot } from '@/types/demo';
 import { demoService } from '@/services/demoService';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
-import Button from '@/components/ui/Button';
-import { Calendar, Clock, Users, Building, Mail, Phone, MapPin, MessageSquare, Video, Monitor, Phone as PhoneIcon } from 'lucide-react';
+import { Clock, Video, Monitor, Phone as PhoneIcon } from 'lucide-react';
 
 interface DemoFormStepProps {
   step: DemoStep;

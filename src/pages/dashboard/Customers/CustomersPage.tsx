@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, Eye, Edit, Phone, Mail, Calendar, MapPin, Car, User, Star, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { Plus, Eye, Edit, Phone, Mail, MapPin, User, Star, Users, TrendingUp } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
 import { Pagination } from '@/components/ui/Pagination'

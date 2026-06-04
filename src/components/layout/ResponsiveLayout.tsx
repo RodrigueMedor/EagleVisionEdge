@@ -1,5 +1,5 @@
 import { useState, ReactNode } from 'react'
-import { Menu, X, ChevronDown, Home, Car, Users, TrendingUp, Calendar, CreditCard, Settings, Bell } from 'lucide-react'
+import { Menu, X, Home, Car, Users, TrendingUp, Calendar, CreditCard, Settings } from 'lucide-react'
 import { useApp } from '@/contexts'
 import { NotificationManager } from '@/components/NotificationManager'
 

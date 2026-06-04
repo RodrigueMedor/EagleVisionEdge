@@ -1,33 +1,22 @@
 import { useEffect, useState } from 'react'
-import { 
-  Car, 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
-  Calendar, 
-  Target, 
-  BarChart3,
-  Activity,
-  Clock,
-  Plus,
-  Eye
+import {
+  Car, TrendingUp, Users, DollarSign, Calendar, Target, BarChart3,
+  Activity, Plus, Eye, ArrowUpRight, ShoppingCart
 } from 'lucide-react'
-import { DashboardCard } from '@/components/ui/DashboardCard'
-import { StatusBadge } from '@/components/ui/StatusBadge'
-import { CardSkeleton } from '@/components/ui/LoadingSkeleton'
-import { EmptyState } from '@/components/ui/EmptyState'
 import Button from '@/components/ui/Button'
 import { dashboardService } from '@/services/dashboardService'
-import { inventoryService } from '@/services/inventoryService'
-import { leadsService } from '@/services/leadsService'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
+import { KpiCard, RecentActivity } from '@/types/dashboard'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area
+} from 'recharts'
+import { showError } from '@/lib/errorHandler'
 
 export default function DashboardHome() {
-  const [metrics, setMetrics] = useState<any>(null)
-  const [kpiCards, setKpiCards] = useState<any[]>([])
+  const [kpiCards, setKpiCards] = useState<KpiCard[]>([])
   const [salesData, setSalesData] = useState<any[]>([])
   const [inventoryTrends, setInventoryTrends] = useState<any[]>([])
-  const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -37,95 +26,102 @@ export default function DashboardHome() {
   const loadDashboardData = async () => {
     setLoading(true)
     try {
-      const [
-        dashboardMetrics,
-        kpiData,
-        sales,
-        trends,
-        activity
-      ] = await Promise.all([
-        dashboardService.getDashboardMetrics(),
+      const [kpiData, sales, trends, activity] = await Promise.all([
         dashboardService.getKpiCards(),
         dashboardService.getSalesData(),
         dashboardService.getInventoryTrends(),
         dashboardService.getRecentActivity()
       ])
-
-      setMetrics(dashboardMetrics)
       setKpiCards(kpiData)
       setSalesData(sales)
       setInventoryTrends(trends)
       setRecentActivity(activity)
     } catch (err) {
-      console.error('Failed to load dashboard data', err)
+      showError(err, 'Failed to load dashboard data')
     } finally {
       setLoading(false)
     }
   }
 
-  const getIcon = (iconName: string) => {
-    const icons: any = {
-      Car: <Car className="w-6 h-6" />,
-      TrendingUp: <TrendingUp className="w-6 h-6" />,
-      Users: <Users className="w-6 h-6" />,
-      DollarSign: <DollarSign className="w-6 h-6" />,
-      Calendar: <Calendar className="w-6 h-6" />,
-      Target: <Target className="w-6 h-6" />,
-      BarChart3: <BarChart3 className="w-6 h-6" />,
-      Activity: <Activity className="w-6 h-6" />
+  const getIcon = (iconName: string, color: string = 'primary') => {
+    const iconColorMap: Record<string, string> = {
+      primary: 'text-primary group-hover:text-white',
+      accent: 'text-accent group-hover:text-white',
+      gold: 'text-gold group-hover:text-white',
+      blue: 'text-primary group-hover:text-white',
+      green: 'text-accent group-hover:text-white',
+      red: 'text-accent group-hover:text-white',
+      yellow: 'text-gold group-hover:text-white',
+      purple: 'text-primary group-hover:text-white',
+      orange: 'text-gold group-hover:text-white',
     }
-    return icons[iconName] || <Activity className="w-6 h-6" />
+    const iconColor = iconColorMap[color] || iconColorMap.primary
+
+    const icons: Record<string, JSX.Element> = {
+      Car: <Car className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      TrendingUp: <TrendingUp className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      Users: <Users className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      DollarSign: <DollarSign className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      Calendar: <Calendar className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      Target: <Target className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      BarChart3: <BarChart3 className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+      Activity: <Activity className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />,
+    }
+    return icons[iconName] || <Activity className={`w-6 h-6 ${iconColor} transition-colors duration-300`} />
+  }
+
+  const getActivityIcon = (type: string) => {
+    const icons: Record<string, JSX.Element> = {
+      new_lead: <Users size={14} />,
+      vehicle_sold: <Car size={14} />,
+      financing_request: <ShoppingCart size={14} />,
+      rental_reservation: <Calendar size={14} />,
+      customer_update: <Users size={14} />,
+    }
+    return icons[type] || <Activity size={14} />
   }
 
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 animate-fadeIn">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
-            <CardSkeleton key={i} />
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="w-10 h-10 bg-gray-100 rounded-2xl animate-pulse mb-4" />
+              <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2 mb-2" />
+              <div className="h-8 bg-gray-100 rounded animate-pulse w-3/4 mb-2" />
+              <div className="h-3 bg-gray-100 rounded animate-pulse w-1/3" />
+            </div>
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="h-64 bg-gray-100 rounded animate-pulse" />
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="h-64 bg-gray-100 rounded animate-pulse" />
-          </div>
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="h-6 bg-gray-100 rounded animate-pulse w-1/3 mb-6" />
+              <div className="h-64 bg-gray-50 rounded-2xl animate-pulse" />
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Theme Test Section */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Theme Test</h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          If you can see this text change color when switching themes, the theme system is working!
-        </p>
-        <div className="grid grid-cols-3 gap-2 mt-4">
-          <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-center">
-            <span className="text-gray-800 dark:text-gray-200 text-sm">Test 1</span>
-          </div>
-          <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded text-center">
-            <span className="text-blue-800 dark:text-blue-200 text-sm">Test 2</span>
-          </div>
-          <div className="bg-green-100 dark:bg-green-900 p-2 rounded text-center">
-            <span className="text-green-800 dark:text-green-200 text-sm">Test 3</span>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-8 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary dark:text-white">Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">Welcome back to Eagle Vision Edge</p>
+          <span className="text-accent text-sm font-semibold tracking-wider uppercase">Dashboard</span>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mt-1">Overview</h1>
+          <p className="text-gray-500 mt-1">Welcome back to Eagle Vision Edge</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={loadDashboardData} className="w-full sm:w-auto">
+          <Button
+            variant="secondary"
+            onClick={loadDashboardData}
+            className="rounded-xl"
+            size="sm"
+          >
             <Activity className="w-4 h-4 mr-2" />
             Refresh
           </Button>
@@ -133,23 +129,34 @@ export default function DashboardHome() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiCards?.map((card, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                {getIcon(card.icon)}
+          <div
+            key={index}
+            className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-soft hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+            style={{ animationDelay: `${index * 80}ms` }}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
+                card.color === 'red' || card.color === 'green' ? 'bg-accent/10 group-hover:bg-accent' :
+                card.color === 'yellow' || card.color === 'orange' ? 'bg-gold/10 group-hover:bg-gold' :
+                'bg-primary/5 group-hover:bg-primary'
+              }`}>
+                {getIcon(card.icon, card.color)}
               </div>
-              <span className={`text-2xl font-bold ${
-                card.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+              <span className={`text-2xl font-bold tracking-tight ${
+                card.changeType === 'increase' ? 'text-green-600' : 'text-red-500'
               }`}>
                 {card.value}
               </span>
             </div>
-            <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium">{card.title}</h3>
-            <div className={`text-xs mt-1 ${
-              card.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+            <h3 className="text-gray-500 text-sm font-medium mb-1">{card.title}</h3>
+            <div className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+              card.changeType === 'increase'
+                ? 'bg-green-50 text-green-700'
+                : 'bg-red-50 text-red-600'
             }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${card.changeType === 'increase' ? 'bg-green-500' : 'bg-red-500'}`} />
               {card.change}
             </div>
           </div>
@@ -157,85 +164,154 @@ export default function DashboardHome() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Sales</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="sales" fill="#3b82f6" />
-              <Bar dataKey="target" fill="#e5e7eb" />
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-soft">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Monthly Sales</h3>
+              <p className="text-sm text-gray-500">Revenue performance over time</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-primary" /> Sales
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-gray-200" /> Target
+              </span>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={salesData} barGap={4}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                }}
+              />
+              <Bar dataKey="sales" fill="#0F172A" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="target" fill="#E2E8F0" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Inventory Trends */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">Inventory Trends</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={inventoryTrends}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="available" stroke="#10b981" strokeWidth={2} />
-              <Line type="monotone" dataKey="sold" stroke="#ef4444" strokeWidth={2} />
-              <Line type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={2} />
-            </LineChart>
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-soft">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Inventory Trends</h3>
+              <p className="text-sm text-gray-500">Available, sold, and total vehicles</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Available
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-red-400" /> Sold
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-primary" /> Total
+              </span>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={inventoryTrends}>
+              <defs>
+                <linearGradient id="availableGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="soldGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f87171" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                }}
+              />
+              <Area type="monotone" dataKey="available" stroke="#10b981" strokeWidth={2} fill="url(#availableGrad)" />
+              <Area type="monotone" dataKey="sold" stroke="#f87171" strokeWidth={2} fill="url(#soldGrad)" />
+              <Area type="monotone" dataKey="total" stroke="#0F172A" strokeWidth={2} fill="none" />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Quick Actions & Recent Activity */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-soft">
+          <h3 className="text-lg font-semibold text-primary mb-1">Quick Actions</h3>
+          <p className="text-sm text-gray-500 mb-5">Common tasks to get started</p>
           <div className="space-y-2">
-            <Button variant="secondary" className="w-full justify-start">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Vehicle
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
-              <Users className="w-4 h-4 mr-2" />
-              New Lead
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
-              <Eye className="w-4 h-4 mr-2" />
-              View Reports
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
-              <Calendar className="w-4 h-4 mr-2" />
-              Schedule Test Drive
-            </Button>
+            {[
+              { icon: Plus, label: 'Add Vehicle', color: 'primary' },
+              { icon: Users, label: 'New Lead', color: 'accent' },
+              { icon: Eye, label: 'View Reports', color: 'gold' },
+              { icon: Calendar, label: 'Schedule Test Drive', color: 'primary' },
+            ].map(({ icon: Icon, label, color }) => (
+              <button
+                key={label}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  color === 'accent'
+                    ? 'text-accent bg-accent/5 hover:bg-accent/10'
+                    : color === 'gold'
+                    ? 'text-gold bg-gold/5 hover:bg-gold/10'
+                    : 'text-primary bg-gray-50 hover:bg-gray-100'
+                }`}
+              >
+                <Icon size={16} />
+                {label}
+                <ArrowUpRight size={14} className="ml-auto opacity-40" />
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-            <Button variant="ghost" size="sm">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-soft lg:col-span-2">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Recent Activity</h3>
+              <p className="text-sm text-gray-500">Latest updates across your dealership</p>
+            </div>
+            <button className="text-sm text-accent hover:text-red-700 font-medium transition-colors">
               View All
-            </Button>
+            </button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-1">
             {recentActivity?.slice(0, 5).map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-                <div className={`w-2 h-2 rounded-full mt-2 ${
-                  activity.priority === 'high' ? 'bg-red-500' :
-                  activity.priority === 'medium' ? 'bg-yellow-500' : 'bg-gray-400'
-                }`} />
+              <div
+                key={activity.id}
+                className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  activity.priority === 'high' ? 'bg-red-50 text-red-500' :
+                  activity.priority === 'medium' ? 'bg-amber-50 text-amber-500' :
+                  'bg-gray-100 text-gray-500'
+                }`}>
+                  {getActivityIcon(activity.type)}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                  <p className="text-sm font-semibold text-gray-900">{activity.title}</p>
                   <p className="text-sm text-gray-500 truncate">{activity.description}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {new Date(activity.timestamp).toLocaleString()}
                   </p>
+                </div>
+                <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ArrowUpRight size={14} className="text-gray-400" />
                 </div>
               </div>
             ))}
@@ -245,4 +321,3 @@ export default function DashboardHome() {
     </div>
   )
 }
-

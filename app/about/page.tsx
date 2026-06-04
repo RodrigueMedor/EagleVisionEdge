@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaCar, FaShieldAlt, FaDollarSign, FaClock, FaStar, FaAward, FaUsers, FaHandshake, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCheckCircle, FaTrophy, FaHeart } from 'react-icons/fa';
+import { FaCar, FaShieldAlt, FaClock, FaAward, FaUsers, FaHandshake, FaMapMarkerAlt, FaPhone, FaCheckCircle, FaTrophy, FaHeart } from 'react-icons/fa';
 
 export default function AboutPage() {
   return (

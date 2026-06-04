@@ -120,6 +120,7 @@ export default function AboutPage() {
         title="Modern Technology Solutions For Independent Dealerships"
         subtitle="Empowering Dealerships to Thrive in the Digital Age"
         description="Eagle Vision Edge is transforming independent dealerships with cutting-edge technology that drives efficiency, increases sales, and enhances customer experiences."
+        image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=800&fit=crop"
       >
         <Button 
           variant="secondary" 

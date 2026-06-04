@@ -8,7 +8,7 @@ import FinancingCalculator from '@/components/financing/FinancingCalculator'
 import FinancingModal from '@/components/financing/FinancingModal'
 import SuccessModal from '@/components/financing/SuccessModal'
 import ContactModal from '@/components/financing/ContactModal'
-import FinancingCTASection, { ConsultationModal, PhoneNumberDisplay } from '@/components/financing/FinancingCTASection'
+import FinancingCTASection, { ConsultationModal } from '@/components/financing/FinancingCTASection'
 import Button from '@/components/ui/Button'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useModal } from '@/hooks/useFinancing'
@@ -16,12 +16,8 @@ import { useToast } from '@/hooks/useFinancing'
 import { 
   CreditCard, 
   DollarSign, 
-  Shield, 
   TrendingUp,
-  CheckCircle,
-  Star,
   Users,
-  Clock,
   Phone
 } from 'lucide-react'
 
@@ -102,6 +98,7 @@ export default function FinancingPage() {
         title="Flexible Financing Options For Every Customer"
         subtitle="Drive Your Dream Car Today"
         description="We make car financing simple, fast, and accessible. Get approved in minutes with our competitive rates and flexible terms."
+        image="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1920&h=800&fit=crop"
       >
         <FinancingCTASection
           onApplyNow={() => financingModal.openModal()}

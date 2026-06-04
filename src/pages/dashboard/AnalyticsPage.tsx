@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts'
-import { TrendingUp, TrendingDown, DollarSign, Users, Car, Target, Clock, Star, Activity, Calendar, Filter, Download } from 'lucide-react'
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { DollarSign, Users, Car, Target, Clock, Star, Activity, Download } from 'lucide-react'
 import { DashboardCard } from '@/components/ui/DashboardCard'
 import { CardSkeleton } from '@/components/ui/LoadingSkeleton'
 import Button from '@/components/ui/Button'
@@ -33,9 +33,9 @@ export default function AnalyticsPage() {
       ] = await Promise.all([
         analyticsService.getMetrics(),
         dashboardService.getSalesData(),
-        dashboardService.getKpiCards(),
-        dashboardService.getRecentActivity(),
-        dashboardService.getInventoryTrends()
+        analyticsService.getRevenueData(),
+        analyticsService.getLeadStatusDistribution(),
+        analyticsService.getInventoryStatusDistribution()
       ])
 
       setMetrics(analyticsMetrics)

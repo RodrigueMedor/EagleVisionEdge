@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "@/components/ui/Button";
-import { CheckCircle, Calendar, Mail, X } from "lucide-react";
+import { CheckCircle, Calendar, Mail } from "lucide-react";
 
 interface DemoSuccessScreenProps {
   onClose: () => void;

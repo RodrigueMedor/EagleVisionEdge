@@ -4,26 +4,13 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Wrench,
-  Car,
-  Battery,
   Activity,
   TrendingUp,
-  Calendar,
   Settings,
   RefreshCw,
-  Filter,
-  Download,
   Eye,
   Bell,
-  Zap,
-  Shield,
-  MapPin,
-  Thermometer,
-  Droplet,
   Smartphone,
-  Monitor,
-  ChevronRight,
   Info,
   AlertCircle,
   X
@@ -34,8 +21,7 @@ import {
   VehicleTelemetry, 
   MaintenanceAnalytics,
   ServiceRecommendation,
-  IoTDevice,
-  PredictiveModel
+  IoTDevice
 } from '@/types/predictiveMaintenance'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 

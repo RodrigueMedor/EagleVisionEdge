@@ -7,18 +7,13 @@ import {
   DollarSign,
   Users,
   Clock,
-  Star,
   MoreVertical,
   User,
-  Calendar,
   Phone,
   Mail,
-  ArrowRight,
   BarChart3,
   Settings,
-  Eye,
-  Edit,
-  MessageSquare
+  Eye
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
 import { Lead, Pipeline, PipelineStage, CustomerStatus, LeadScore } from '@/types/crm'

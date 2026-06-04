@@ -11,7 +11,6 @@ import {
   FileText, 
   CheckCircle, 
   AlertCircle,
-  Filter,
   Download,
   RefreshCw,
   Search,
@@ -19,8 +18,7 @@ import {
   ChevronUp,
   Eye
 } from 'lucide-react'
-import { TimelineActivity, Customer } from '@/types/crm'
-import { crmService } from '@/services/crmService'
+import { TimelineActivity } from '@/types/crm'
 
 interface CustomerTimelineProps {
   customerId: string

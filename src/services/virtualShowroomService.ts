@@ -1,18 +1,10 @@
 import { 
   VehicleModel, 
   VirtualTour, 
-  TourScene, 
-  TourHotspot, 
   ARConfiguration,
   ShowroomSession,
-  ShowroomInteraction,
   VehicleConfiguration,
-  ShowroomAnalytics,
-  VehicleColor,
-  TrimLevel,
-  VehicleFeature,
-  VehicleAccessory,
-  FinancingOption
+  ShowroomAnalytics
 } from '@/types/virtualShowroom'
 
 // Mock data generators

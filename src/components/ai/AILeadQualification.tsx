@@ -4,8 +4,6 @@ import { aiService } from '@/services/aiService'
 import type { AILeadQualification, LeadQualificationRequest } from '@/types/ai'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
 import { clsx } from 'clsx'
 
 interface AILeadQualificationProps {

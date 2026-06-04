@@ -2,20 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Users,
-  TrendingUp,
   DollarSign,
   Clock,
-  Phone,
-  Mail,
   Calendar,
   AlertCircle,
-  CheckCircle,
   Activity,
   BarChart3,
   Bot,
   Car,
   CreditCard,
-  FileText,
   MessageSquare,
   Eye,
   ArrowRight,
@@ -23,7 +18,7 @@ import {
   Target
 } from 'lucide-react'
 import { crmService } from '@/services/crmService'
-import { CRMDashboardData, FollowUp, AIRecommendation, Lead } from '@/types/crm'
+import { CRMDashboardData } from '@/types/crm'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 const CRMDashboardPage: React.FC = () => {

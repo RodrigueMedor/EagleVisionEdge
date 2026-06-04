@@ -3,11 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { 
-  UserRole, 
   Module, 
   UserSession, 
-  ROLE_DISPLAY, 
-  MODULE_CONFIG 
+  ROLE_DISPLAY 
 } from '@/types/rbac';
 import { userService } from '@/services/userService';
 import { permissionService } from '@/services/permissionService';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Edit, Phone, Mail, Calendar, MapPin, DollarSign, Car, MessageSquare, Clock, User, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Edit, Phone, Mail, Calendar, MapPin, DollarSign, Car, MessageSquare, User, CheckCircle } from 'lucide-react'
 import { Card, StatusBadge } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -8,6 +8,7 @@ import Select from '@/components/ui/Select'
 import { leadsService } from '@/services/leadsService'
 import { mockLeads } from '@/data/mockLeads'
 import { Lead, LeadStatus } from '@/types/lead'
+import { showError, showSuccess } from '@/lib/errorHandler'
 
 const leadStatuses = [
   { value: 'new', label: 'New', color: 'blue' },
@@ -42,6 +43,9 @@ export default function LeadDetailPage() {
       const fallbackLead = mockLeads.find(l => l.id === id)
       if (fallbackLead) {
         setLead(fallbackLead)
+        showError('Could not load live data — showing cached version')
+      } else {
+        showError('Failed to load lead')
       }
     } finally {
       setLoading(false)
@@ -61,28 +65,41 @@ export default function LeadDetailPage() {
       setEditingStatus(false)
     } catch (err) {
       console.error('Failed to update lead status', err)
+      showError('Failed to update lead status')
     }
   }
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (!newNote.trim() || !lead) return
 
-    const updatedLead = {
-      ...lead,
-      notes: [
-        ...(lead.notes || []),
-        {
-          id: Date.now().toString(),
-          content: newNote.trim(),
-          createdAt: new Date(),
-          createdBy: 'Current User'
-        }
-      ],
-      updatedAt: new Date()
-    }
+    try {
+      await leadsService.addCommunicationLog(lead.id, {
+        type: 'note',
+        content: newNote.trim(),
+        timestamp: new Date(),
+        createdBy: 'Current User'
+      })
 
-    setLead(updatedLead)
-    setNewNote('')
+      const updatedLead = {
+        ...lead,
+        notes: [
+          ...(lead.notes || []),
+          {
+            id: Date.now().toString(),
+            content: newNote.trim(),
+            createdAt: new Date(),
+            createdBy: 'Current User'
+          }
+        ],
+        updatedAt: new Date()
+      }
+
+      setLead(updatedLead)
+      setNewNote('')
+      showSuccess('Note added successfully')
+    } catch {
+      showError('Failed to add note')
+    }
   }
 
   const formatCurrency = (value: number) => {
@@ -325,15 +342,38 @@ export default function LeadDetailPage() {
           <Card>
             <h3 className="text-lg font-bold text-primary mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <Button variant="primary" className="w-full">
+              <Button
+                variant="primary" className="w-full"
+                onClick={() => {
+                  if (lead?.phone) {
+                    window.open(`tel:${lead.phone}`, '_self')
+                  } else {
+                    showError('No phone number available')
+                  }
+                }}
+              >
                 <Phone className="w-4 h-4 mr-2" />
                 Call Customer
               </Button>
-              <Button variant="secondary" className="w-full">
+              <Button
+                variant="secondary" className="w-full"
+                onClick={() => {
+                  if (lead?.email) {
+                    window.open(`mailto:${lead.email}?subject=Inquiry%20from%20Eagle%20Vision%20Edge`, '_self')
+                  } else {
+                    showError('No email address available')
+                  }
+                }}
+              >
                 <Mail className="w-4 h-4 mr-2" />
                 Send Email
               </Button>
-              <Button variant="secondary" className="w-full">
+              <Button
+                variant="secondary" className="w-full"
+                onClick={() => {
+                  navigate('/schedule-demo')
+                }}
+              >
                 <Calendar className="w-4 h-4 mr-2" />
                 Schedule Appointment
               </Button>

@@ -1,4 +1,4 @@
-import { UserRole, User, CreateUserData, UpdateUserData, ROLE_DISPLAY, PermissionMatrix } from '@/types/rbac'
+import { UserRole, User, CreateUserData, UpdateUserData, ROLE_DISPLAY } from '@/types/rbac'
 import { permissionService } from './permissionService'
 
 // Helper function to get default permissions for a role

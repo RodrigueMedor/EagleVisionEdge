@@ -2,27 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Bot,
-  TrendingUp,
   AlertTriangle,
-  CheckCircle,
   Clock,
   Star,
   Search,
-  Filter,
   RefreshCw,
-  Eye,
   CheckSquare,
   X,
-  Calendar,
   DollarSign,
   Car,
-  Phone,
-  Mail,
   MessageSquare,
   User,
-  Zap,
   Target,
-  BarChart3,
   Brain,
   Lightbulb
 } from 'lucide-react'

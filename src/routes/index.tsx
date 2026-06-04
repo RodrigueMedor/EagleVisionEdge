@@ -1,4 +1,4 @@
-import { Routes as ReactRoutes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes as ReactRoutes, Route, Outlet } from 'react-router-dom'
 import ProtectedRoute from '@/components/rbac/ProtectedRoute'
 import PublicLayout from '@/layouts/PublicLayout'
 import DashboardLayout from '@/layouts/DashboardLayout'
@@ -30,7 +30,10 @@ const CustomerDetailPage = lazy(() => import('@/pages/dashboard/Customers/Custom
 const AnalyticsPage = lazy(() => import('@/pages/dashboard/AnalyticsPage'))
 const SettingsPage = lazy(() => import('@/pages/dashboard/SettingsPage'))
 const RentalsManagementPage = lazy(() => import('@/pages/dashboard/RentalsManagementPage'))
+const FinancingDashboard = lazy(() => import('@/pages/dashboard/FinancingDashboard'))
 const AIDashboard = lazy(() => import('@/pages/dashboard/AIDashboard'))
+const ScheduleDemoPage = lazy(() => import('@/pages/public/ScheduleDemoPage'))
+const NotFoundPage = lazy(() => import('@/pages/public/NotFoundPage'))
 
 // CRM Pages
 const CRMDashboardPage = lazy(() => import('@/pages/dashboard/CRM/CRMDashboardPage'))
@@ -44,11 +47,11 @@ const CRMRentalWorkflowPage = lazy(() => import('@/pages/dashboard/CRM/RentalWor
 const CRMAIRecommendationsPage = lazy(() => import('@/pages/dashboard/CRM/AIRecommendationsPage'))
 const CRMAnalyticsPage = lazy(() => import('@/pages/dashboard/CRM/CRMAnalyticsPage'))
 
-// Phase 3 Advanced Features
 const VirtualShowroomPage = lazy(() => import('@/pages/dashboard/VirtualShowroom/VirtualShowroomPage'))
 const PredictiveMaintenancePage = lazy(() => import('@/pages/dashboard/PredictiveMaintenance/PredictiveMaintenancePage'))
 const UserManagementPage = lazy(() => import('@/components/rbac/UserManagementDashboard'))
 const PermissionManagementPage = lazy(() => import('@/components/rbac/PermissionManagement'))
+const ContentManagementPage = lazy(() => import('@/pages/dashboard/ContentManagement/ContentManagementPage'))
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
@@ -66,6 +69,7 @@ export default function Routes() {
           <Route path="/auctions" element={<AuctionsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/schedule-demo" element={<ScheduleDemoPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -85,9 +89,17 @@ export default function Routes() {
             <Route path="/dashboard/customers" element={<CustomersPage />} />
             <Route path="/dashboard/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/dashboard/rentals" element={<RentalsManagementPage />} />
+            <Route path="/dashboard/rentals/add" element={<RentalsManagementPage />} />
+            <Route path="/dashboard/rentals/:id" element={<RentalsManagementPage />} />
+            <Route path="/dashboard/rentals/:id/edit" element={<RentalsManagementPage />} />
+            <Route path="/dashboard/financing" element={<FinancingDashboard />} />
+            <Route path="/dashboard/financing/add" element={<FinancingDashboard />} />
+            <Route path="/dashboard/financing/:id" element={<FinancingDashboard />} />
+            <Route path="/dashboard/financing/:id/edit" element={<FinancingDashboard />} />
             <Route path="/dashboard/analytics" element={<AnalyticsPage />} />
             <Route path="/dashboard/ai" element={<AIDashboard />} />
             <Route path="/dashboard/settings" element={<SettingsPage />} />
+            <Route path="/dashboard/content" element={<ContentManagementPage />} />
             <Route path="/dashboard/users" element={<UserManagementPage />} />
             <Route path="/dashboard/permissions" element={<PermissionManagementPage />} />
             {/* CRM Routes */}
@@ -108,7 +120,8 @@ export default function Routes() {
         </Route>
 
         {/* Catch all */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/404" element={<NotFoundPage />} />
       </ReactRoutes>
     </Suspense>
   )

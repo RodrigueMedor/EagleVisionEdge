@@ -3,19 +3,14 @@ import {
   Lead,
   FollowUp,
   Pipeline,
-  FinancingApplication,
-  RentalInquiry,
   AIRecommendation,
-  CommunicationThread,
   CRMMetrics,
   CRMDashboardData,
-  TimelineActivity,
   CRMFilter,
   CRMSearch,
   CRMResponse,
   CreateLeadRequest,
   UpdateLeadStatusRequest,
-  CreateFollowUpRequest,
   AddCustomerNoteRequest,
   AssignSalespersonRequest,
   ScheduleFollowUpRequest,
@@ -23,9 +18,6 @@ import {
   LeadScore,
   LeadSource,
   PipelineStage,
-  FinancingStatus,
-  RentalStatus,
-  UserRole,
   CustomerNote,
   CommunicationLog
 } from '@/types/crm'
@@ -208,10 +200,10 @@ const generateMockAIRecommendations = (): AIRecommendation[] => {
 }
 
 // Mock data storage
-let mockCustomers = generateMockCustomers()
-let mockLeads = generateMockLeads()
-let mockFollowUps = generateMockFollowUps()
-let mockAIRecommendations = generateMockAIRecommendations()
+const mockCustomers = generateMockCustomers()
+const mockLeads = generateMockLeads()
+const mockFollowUps = generateMockFollowUps()
+const mockAIRecommendations = generateMockAIRecommendations()
 
 // CRM Service Class
 class CRMService {

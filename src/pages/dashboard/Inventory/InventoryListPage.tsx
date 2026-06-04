@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, Car, Edit, Trash2, Eye, DollarSign, Grid, List } from 'lucide-react'
+import { Plus, Car, Edit, Trash2, Eye, DollarSign, Grid, List } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { SearchFilterBar } from '@/components/ui/SearchFilterBar'
 import { Pagination } from '@/components/ui/Pagination'
@@ -9,7 +9,7 @@ import { TableSkeleton } from '@/components/ui/LoadingSkeleton'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import { inventoryService } from '@/services/inventoryService'
-import { Vehicle, VehicleStatus } from '@/types/vehicle'
+import { Vehicle } from '@/types/vehicle'
 
 export default function InventoryListPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
